@@ -73,7 +73,7 @@ Class.extend(new Accessor('Mutator'));
 
 var implement = function(key, value, retainOwner){
 	
-	var mutator = Class.matchMutator(key) || Class.lookupMutator(key);
+	var mutator = Class.lookupMutator(key);
 	
 	if (mutator){
 		value = mutator.call(this, value);
