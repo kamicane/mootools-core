@@ -19,7 +19,7 @@ this.Accessor = function(singular, plural){
 	var define = 'define', lookup = 'lookup', match = 'match', each = 'each';
 	
 	var defineSingular = this[define + singular] = function(key, value){
-		if (typeOf(key) == 'regexp') matchers.push({'regexp': key, 'action': value});
+		if (typeOf(key) == 'regexp') matchers.push({'regexp': key, 'value': value, 'type': typeOf(value)});
 		else accessor[key] = value;
 		return this;
 	};
@@ -29,18 +29,17 @@ this.Accessor = function(singular, plural){
 		return this;
 	};
 	
-	var matchSingular = this[match + singular] = function(name){
+	var lookupSingular = this[lookup + singular] = function(key){
+		if (accessor.hasOwnProperty(key)) return accessor[key];
 		for (var l = matchers.length; l--; l){
-			var matcher = matchers[l], match = name.match(matcher.regexp);
-			if (match && (match = match.slice(1))) return function(){
-				return matcher.action.apply(this, Array.slice(arguments).append(match));
-			};
+			var matcher = matchers[l], matched = key.match(matcher.regexp);
+			if (matched && (matched = matched.slice(1))){
+				if (matcher.type == 'function') return function(){
+					return matcher.value.apply(this, Array.slice(arguments).append(matched));
+				}; else return matcher.value;
+			}
 		}
 		return null;
-	};
-	
-	var lookupSingular = this[lookup + singular] = function(key){
-		return (accessor.hasOwnProperty(key) && accessor[key]) || null;
 	};
 	
 	var lookupPlural = this[lookup + plural] = lookupSingular.overloadGetter(true);
