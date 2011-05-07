@@ -334,11 +334,11 @@ Element.implement(methods);
 
 methods = {
 	find: {
-		getNext: '+',
-		getPrevious: '!+',
+		getNext: '~',
+		getPrevious: '!~',
 		getFirst: '^',
 		getLast: '!^',
-		getParent: '!>'
+		getParent: '!'
 	},
 	search: {
 		getAllNext: '~',
