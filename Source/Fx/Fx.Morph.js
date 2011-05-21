@@ -7,13 +7,11 @@ provides: Fx.Morph
 ...
 */
 
+(function(){
+
 Fx.Morph = new Class({
 
 	Extends: Fx,
-	
-	Implements: Events,
-	
-	// onCancel, onPause, onResume, onComplete
 	
 	initialize: function(element, options){
 		this.item = DOM.$(element);
@@ -23,7 +21,7 @@ Fx.Morph = new Class({
 	/* public methods */
 	
 	start: function(data){
-		if (!this.check(property, data)) return this;
+		if (!this.check.apply(this, arguments)) return this;
 		var matchColor = /^rgb/, matchUnit = /^[\d.]+[a-zA-Z]+$/, matchFloat = /^[\d.]+$/, matchString = /^\w+$/;
 		
 		if (typeOf(data) == 'string'){
@@ -37,7 +35,7 @@ Fx.Morph = new Class({
 		main: for (var style in data){
 
 			var from = null, to = null, camel = style.camelCase(), current = data[style];
-			var parse = Element.lookupStyleParser(camel);
+			var parse = DOM.Element.lookupStyleParser(camel);
 			if (!parse) continue;
 			
 			if (typeOf(current) == 'object'){
@@ -50,34 +48,67 @@ Fx.Morph = new Class({
 			var froms = Array.from(parse(from)), tos = Array.from(parse(to));
 			if (!froms || !tos) continue;
 			
-			var units = [];
-			
 			var l = froms.length;
 			if (l != tos.length) continue;
 			
-			var pFroms = [], pTos = [], pUnits = [];
+			var cData = [], cFroms = [], cTos = [];
 			
 			sub: for (var i = 0; i < l; i++){
 
-				var f = froms[i], t = tos[i], parsed;
+				var f = froms[i], t = tos[i];
 
-				if (f.match(matchColor) && t.match(matchColor)) parsed = this.parseColor(f, t);
-				else if (f.match(matchUnit) && t.match(matchUnit)) parsed = this.parseUnit(f, t);
-				else if (f.match(matchFloat) && t.match(matchFloat)) parsed = this.parseFloat(f, t);
-				else if (f.match(matchString) && t.match(matchString)) parsed = [f, t];
-				else continue main; //TODO: don't quit here. Could be a string in a (border) shorthand.
-				
-				if (parsed == null) continue main; // TODO: this should probably quit, as it means it's either malformed or mismatched.
-				if ((parsed[0]).toString() == (parsed[1]).toString()) continue sub;
+				if (f.match(matchColor) && t.match(matchColor)){
+	
+					var cf = new Color(f), ct = new Color(t);
+					cData.push({type: 'array', from: cf.toRGB(true), to: ct.toRGB(true)});
+					f = cf.toString();
+					t = ct.toString();
+	
+				} else if (f.match(matchUnit) && t.match(matchUnit)){
 					
-				pFroms.push(parsed[0]);
-				pTos.push(parsed[1]);
-				pUnits.push(parsed[2] || '');
+					var regexp = /^([\d.]+)(%|px|em|pt)$/, match;
+					if (!(match = String(f).match(regexp))) continue main;
+					f = match.slice(1);
+					if (!(match = String(t).match(regexp))) continue main;
+					t = match.slice(1);
+					if (!f[1]) f[1] = 'px';
+					if (!t[1]) t[1] = 'px';
+
+					if (f[1] == 'px' && t[1] == 'em') f[0] = this.item.PXToEM(f[0]);
+					else if (f[1] == 'em' && t[1] == 'px') f[0] = this.item.EMToPX(f[0]);
+					else if (f[1] != t[1]) continue main;
+					
+					var u = t[1];
+
+					f = parseFloat(f[0]);
+					t = parseFloat(t[0]);
+					
+					cData.push({type: 'number', from: f, to: t, unit: u});
+					
+					f = f + u;
+					t = t + u;
+					
+				} else if (f.match(matchFloat) && t.match(matchFloat)){
+
+					f = parseFloat(f);
+					t = parseFloat(t);
+					cData.push({type: 'number', from: f, to: t});
+
+				} else if (f.match(matchString) && t.match(matchString)){
+				
+					cData.push({type: 'string', from: f, to: t});
+					
+				} else continue main; //TODO: don't quit here. Could be a string in a (border) shorthand?
+
+				cFroms.push(f);
+				cTos.push(t);
 				
 			}
 			
-			this.all[camel] = {froms: pFroms, tos: pTos, units: pUnits, length: l};
-			length++;
+			if (cFroms.toString() != cTos.toString()){
+				this.all[camel] = cData;
+				length++;
+			}
 			
 		}
 		
@@ -87,7 +118,7 @@ Fx.Morph = new Class({
 	
 	morph: function(selector){
 		if (!this.check(selector)) return this;
-		var element = $(document).build(selector).setStyles({visibility: 'hidden', position: 'absolute'}).injectAfter(this.item), styles = {};
+		var element = DOM.$(document).build(selector).setStyles({visibility: 'hidden', position: 'absolute'}).injectAfter(this.item), styles = {};
 		DOM.Element.eachStyleParser(function(parser, name){
 			if (!parser.shortHand) styles[name] = element.getStyle(name);
 		});
@@ -97,31 +128,24 @@ Fx.Morph = new Class({
 	
 	/* overrides */
 	
-	'protected render': function(styles){
-		this.item.setStyles(styles);
-	},
-	
 	'protected compute': function(delta){
 		var styles = {};
 		
 		for (var style in this.all){
 			var current = this.all[style];
-			var froms = current.froms, tos = current.tos, length = current.length, units = current.units;
 			var results = [];
 
-			main: for (var i = 0; i < length; i++){
+			main: for (var i = 0; i < current.length; i++){
 				
-				var from = froms[i], to = tos[i], unit = units[i], result;
+				var c = current[i], from = c.from, to = c.to, unit = c.unit, result;
 					
-				switch (typeOf(from)){
-					case 'number': result = Fx.compute(from, to, delta); break;
+				switch (c.type){
+					case 'number': result = (from == to) ? to : Fx.compute(from, to, delta); break;
 					case 'string': result = to; break;
 					case 'array': result = from.map(function(fj, j){
-						var tj = t[j];
-						if (fj == tj) return tj;
-						return Fx.compute(fj, tj, delta);
+						var tj = to[j];
+						return (fj == tj) ? tj : Fx.compute(fj, tj, delta);
 					}); break;
-					default: continue main; // this should never be anything else other than string, number or array(color).
 				}
 				
 				results.push((unit) ? result + unit : result);
@@ -133,53 +157,8 @@ Fx.Morph = new Class({
 		return styles;
 	},
 	
-	/* parsers */
-	
-	'protected parseColor': function(from, to){
-		return [new Color(from).toRGB(true), new Color(to).toRGB(true)];
-	},
-	
-	'protected parseUnit': function(from, to){
-
-		var regexp = /^([\d.]+)(%|px|em|pt)$/, match;
-		if (!(match = String(from).match(regexp))) return null;
-		from = match.slice(1);
-		if (!(match = String(to).match(regexp))) return null;
-		to = match.slice(1);
-		if (!from[1]) from[1] = 'px';
-		if (!to[1]) to[1] = 'px';
-		
-		if (from[1] == 'px' && to[1] == 'em') from[0] = this.item.PXToEM(from[0]);
-		else if (from[1] == 'em' && to[1] == 'px') from[0] = this.item.EMToPX(from[0]);
-		else if (from[1] != to[1]) return null;
-
-		return [parseFloat(from[0]), parseFloat(to[0]), to[1]];
-	},
-	
-	'protected parseFloat': function(from, to){
-		return [parseFloat(from), parseFloat(to)];
-	},
-	
-	/* events integration */
-	
-	cancel: function(){
-		if (this.parent()) this.fire('cancel', this.item);
-		return this;
-	},
-	
-	pause: function(){
-		if (this.parent()) this.fire('pause', this.item);
-		return this;
-	},
-	
-	resume: function(){
-		if (this.parent()) this.fire('resume', this.item);
-		return this;
-	},
-	
-	complete: function(){
-		if (this.parent()) this.fire('complete', this.item);
-		return this;
+	'protected render': function(styles){
+		this.item.setStyles(styles);
 	},
 	
 	/* $ */
@@ -190,16 +169,11 @@ Fx.Morph = new Class({
 	
 });
 
-DOM.Element.defineSetter('fx', function(options){
-	this.get('fx').setOptions(options);
-});
+})();
 
-DOM.Element.defineGetter('fx', function(){
-	return this.$fx || (this.$fx = new Fx.Morph(this));
-});
-
-DOM.Element.implement('morph', function(){
-	var fx = this.get('fx');
-	fx.start.apply(fx, arguments);
+DOM.Element.implement('morph', function(data, options){
+	var fx = this._fxMorph || (this._fxMorph = new Fx.Morph(this));
+	if (options) fx.setOptions(options);
+	fx.start(data);
 	return this;
 });
