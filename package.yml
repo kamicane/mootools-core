@@ -38,3 +38,4 @@ sources:
   - "Source/Utilities/JSON.js"
   - "Source/Utilities/Color.js"
   - "Source/Utilities/Table.js"
+  - "Source/Utilities/Timer.js"
