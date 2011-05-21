@@ -2,7 +2,7 @@
 ---
 name: Fx
 description: Contains the basic animation logic to be extended by all other Fx Classes.
-requires: [Type, Array, String, Number, Function, Class, Chain, Events, Options]
+requires: [Type, Array, String, Number, Function, Class, Options, Events, Timer]
 provides: Fx
 ...
 */
@@ -11,91 +11,166 @@ provides: Fx
 
 var Fx = this.Fx = new Class({
 
-	Implements: Options,
+	Implements: [Options, Events],
 
 	options: {
+		/*
+		onStart: nil,
+		onCancel: nil,
+		onComplete: nil,
+		*/
 		duration: '500ms',
 		equation: 'default',
-		behavior: 'cancel'
+		behavior: 'cancel',
+		fps: 60,
+		frames: null,
+		frameSkip: true
 	},
-	
+
 	initialize: function(options){
 		this.setOptions(options);
-		this.stack = [];
+		this.queue = [];
+		this.boundStep = this.step.bind(this);
 	},
-	
-	/* public methods */
 	
 	start: function(from, to){
 		if (!this.check(from, to)) return this;
 		this.from = from;
 		this.to = to;
-		this.time = 0;
-		this.equation = Fx.parseEquation(this.getOption('equation'));
-		this.duration = Fx.parseDuration(this.getOption('duration'));
-		this.startTimer();
+		this.frame = (this.getOption('frameSkip')) ? 0 : -1;
+		this.time = null;
+		this.equation = parseEquation(this.getOption('equation'));
+		this.duration = parseDuration(this.getOption('duration'));
+		var frames = this.getOption('frames'), fps = this.getOption('fps');
+		this.timer = Timer(fps);
+		this.frameInterval = 1000 / fps;
+		this.frameSkip = this.getOption('frameSkip');
+		this.frames = frames || Math.round(this.duration / this.frameInterval);
+		this.timer.push(this.boundStep);
+		this.fire('start');
+		return this;
+	},
+
+	step: function(now){
+		if (this.frameSkip){
+			var diff = (this.time != null) ? (now - this.time) : 0, frames = diff / this.frameInterval;
+			this.time = now;
+			this.frame += frames;
+		} else {
+			this.frame++;
+		}
+		
+		if (this.frame < this.frames){
+			var delta = this.equation(this.frame / this.frames);
+			this.render(this.compute(delta));
+		} else {
+			this.frame = this.frames;
+			this.render(this.compute(1));
+			this.stop();
+		}
+	},
+	
+	stop: function(){
+		if (this.running()){
+			this.halt();
+			if (this.frames == this.frame){
+				//fx is complete, call and remove next item in queue.
+				this.fire('complete');
+				if (this.queue.length) this.queue.shift()();
+			} else {
+				this.frames = this.frame;
+				//fx is not complete, resets the queue.
+				this.queue = [];
+				this.fire('cancel');
+			}
+		}
 		return this;
 	},
 	
-	cancel: function(){
-		this.time = 0;
-		return this.stopTimer();
-	},
-	
 	pause: function(){
-		return this.stopTimer();
+		if (this.running()){
+			this.halt();
+			this.fire('pause');
+		}
+		return this;
 	},
-
+	
 	resume: function(){
-		return this.startTimer();
+		if ((this.frame < this.frames) && !this.running()){
+			this.timer.push(this.boundStep);
+			this.fire('resume');
+		}
+		return this;
 	},
 	
-	complete: function(){
-		if (this.stack.length) this.stack.shift()();
-		return this.stopTimer();
+	running: function(){
+		return !!(this.timer && this.timer.running());
 	},
 	
-	/* private methods */
+	// internal API
 	
-	step: function(){
-		var time = Date.now();
-		var factor = (time - this.time) / this.duration;
-		if (factor >= 1) factor = 1;
-		var delta = this.equation(factor);
-		this.render(this.compute(delta));
-		if (factor == 1) this.complete();
+	'protected halt': function(){
+		if (this.running()){
+			this.time = null;
+			this.timer.pull(this.boundStep);
+			this.timer = null;
+		}
+		return this;
 	},
 	
-	'protected render': function(now){},
-
-	'protected compute': function(delta){
-		return Fx.compute(this.from, this.to, delta);
-	},
-
 	'protected check': function(){
-		if (!this.timer) return true;
+		if (!this.running()) return true;
 		switch (this.getOption('behavior')){
-			case 'cancel': this.cancel(); return true;
-			case 'stack': this.stack.push(this.caller.pass(arguments, this)); return false;
+			case 'cancel': this.stop(); return true;
+			case 'queue': this.queue.push(this.caller.pass(arguments, this)); return false;
 		}
 		return false;
 	},
-
-	'protected stopTimer': function(){
-		if (!this.timer) return false;
-		this.time = Date.now() - this.time;
-		this.timer = removeInstance(this);
-		return true;
+	
+	'protected compute': function(delta){
+		return Fx.compute(this.from, this.to, delta);
 	},
-
-	'protected startTimer': function(){
-		if (this.timer) return false;
-		this.time = Date.now() - this.time;
-		this.timer = addInstance(this);
-		return true;
+	
+	'protected render': function(value){
+		return value;
 	}
 
 });
+
+// Fx.parseEquation, preliminary parameter support (1 parameter)
+
+var parseEquation = function(name){
+	var t = typeOf(name);
+	if (t == 'function') return name;
+	if (t != 'string') name = 'linear';
+	var match = name.match(/^([\w]+)([:inout]+)?(\(([\d.]+)\))?$/);
+	var n = match[1], equation = Fx.lookupEquation(n);
+	if (!equation) return null;
+	var end = equation(1), param = parseFloat(match[4]), type = match[2];
+	switch (type){
+		case ':out': return function(pos){
+			return end - equation(1 - pos, param);
+		};
+		case ':in:out': return function(pos){
+			return (pos <= 0.5) ? equation(2 * pos, param) / 2 : (2 * end - equation(2 * (1 - pos), param)) / 2;
+		};
+		default: return (param != null) ? function(pos){
+			return equation(pos, param);
+		} : equation;
+	}
+};
+
+var parseDuration = function(duration){
+	if (typeOf(duration) == 'number') return duration;
+	var n = parseFloat(duration);
+	if (n == duration) return n;
+	var d = Fx.lookupDuration(duration);
+	if (d != null) return d;
+	d = duration.match(/^[\d.]+([ms]{1,2})?$/);
+	if (!d) return 0;
+	if (d[1] == 's') return n * 1000;
+	return n;
+};
 
 Fx.extend('compute', function(from, to, delta){
 	return (to - from) * delta + from;
@@ -106,45 +181,6 @@ Fx.extend(new Accessor('Duration')).extend(new Accessor('Equation'));
 // duration
 
 Fx.defineDurations({'short': 250, 'normal': 500, 'long': 1000});
-
-Fx.extend('parseDuration', function(duration){
-	if (typeOf(duration) == 'number') return duration;
-	var n = parseFloat(duration);
-	if (n == duration) return n;
-	var d = Fx.lookupDuration(duration);
-	if (d != null) return d;
-	d = duration.match(/^[\d.]+([ms]{1,2})?$/);
-	if (!d) return 0;
-	if (d[1] == 's') return n * 1000;
-	return n;
-});
-
-// global timer
-
-var fps = 60, instances = [], timer;
-
-var loop = function(){
-	for (var i = 0; i < instances.length; i++) instances[i].step();
-};
-
-var addInstance = function(instance){
-	instances.push(instance);
-	if (!timer) timer = loop.periodical(Math.round(1000 / fps));
-	return true;
-};
-
-var removeInstance = function(instance){
-	instances.erase(instance);
-	if (!instances.length && timer) timer = clearInterval(timer);
-	return false;
-};
-
-// fps set
-
-Fx.extend('setFPS', function(value){
-	fps = value;
-	return this;
-});
 
 // equations
 
@@ -203,27 +239,4 @@ Fx.defineEquations({
 	});
 });
 
-// Fx.parseEquation, preliminary parameter support (1 parameter)
-
-Fx.extend('parseEquation', function(name){
-	var t = typeOf(name);
-	if (t == 'function') return name;
-	if (t != 'string') name = 'linear';
-	var match = name.match(/^([\w]+)([:inout]+)?(\(([\d.]+)\))?$/);
-	var n = match[1], equation = Fx.lookupEquation(n);
-	if (!equation) return null;
-	var end = equation(1), param = parseFloat(match[4]), type = match[2];
-	switch (type){
-		case ':out': return function(pos){
-			return end - equation(1 - pos, param);
-		};
-		case ':in:out': return function(pos){
-			return (pos <= 0.5) ? equation(2 * pos, param) / 2 : (2 * end - equation(2 * (1 - pos), param)) / 2;
-		};
-		default: return (param != null) ? function(pos){
-			return equation(pos, param);
-		} : equation;
-	}
-});
-	
 })();
