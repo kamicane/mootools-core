@@ -27,7 +27,7 @@ var classGetOption = function(key){
 
 this.Options = new Class({
 	setOption: classSetOption,
-	setOptions: classSetOption.overloadSetter(),
+	setOptions: classSetOption.overloadSetter(true),
 	getOption: classGetOption,
 	getOptions: classGetOption.overloadGetter(true)
 });

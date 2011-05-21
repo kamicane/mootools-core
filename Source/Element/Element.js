@@ -13,7 +13,7 @@ var document = this.document, window = this;
 
 var DOM = this.DOM = new Class({
 
-	Implements: [Store, Events],
+	Implements: Store,
 
 	initialize: function(node){
 		this.node = nodeOf(node);
@@ -153,7 +153,7 @@ Elements.implement({
 	
 	push: function(){
 		for (var i = 0, l = arguments.length; i < l; i++){
-			var item = $(arguments[i]);
+			var item = DOM.$(arguments[i]);
 			if (item) this[this.length++] = item;
 		}
 		return this.length;
