@@ -5,7 +5,7 @@ description: type of
 ...
 */
 
-define('Utilities/typeOf', function(){
+define('Utility/typeOf', function(){
 	
 	var toString = Object.prototype.toString;
 

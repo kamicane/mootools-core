@@ -11,8 +11,12 @@ define('Host/Array', ['Core/Host'], function(Host){
 	
 	return Host(Array).implement({
 		
+		//methods that we want available only on environments that already supports them on the native object
+		
 		pop: proto.pop, push: proto.push, reverse: proto.reverse, shift: proto.shift, sort: proto.sort, splice: proto.splice, unshift: proto.unshift,
 		concat: proto.concat, join: proto.join, slice: proto.slice, lastIndexOf: proto.lastIndexOf, reduce: proto.reduce, reduceRight: proto.reduceRight,
+		
+		//methods that we want available in every environment
 	
 		filter: function(fn, bind){
 			var results = [];

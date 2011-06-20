@@ -5,7 +5,7 @@ description: Generates an unique ID
 ...
 */
 
-define('Utilities/uniqueID', function(){
+define('Utility/uniqueID', function(){
 	var UID = 0;
 	
 	return function(){
