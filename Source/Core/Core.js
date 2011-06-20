@@ -39,7 +39,7 @@ if (!require) require = function(ids, callback_){
 		if (module && loaded[id] == null){
 			var factory = module.factory, ideps = module.dependencies, dependencies = [];
 			for (var j = 0; j < ideps.length; j++) dependencies.push(require(ideps[j]));
-			loaded[name] = (typeof factory == 'function') ? factory.apply(this, dependencies) : factory;
+			loaded[id] = (typeof factory == 'function') ? factory.apply(this, dependencies) : factory;
 		}
 		modules_.push(loaded[id]);
 	}
