@@ -15,9 +15,15 @@ define('Core/Host', function(){
 
 	return function Host(native_){
 	
-		var prototypes = {}, generics = {}, host = function(){
-			this.self_ = native_.apply(native_, arguments);
-			return this;
+		var prototyping = false, prototypes = {}, generics = {}, host = function(){
+			var self = this;
+			if (!(this instanceof host)){
+				prototyping = true;
+				self = new host;
+				prototyping = false;
+			}
+			if (!prototyping) self.self_ = native_.apply(native_, arguments);
+			return self;
 		};
 	
 		host.install = function(object){
