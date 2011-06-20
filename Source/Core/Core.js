@@ -21,7 +21,6 @@ var MooTools = {
 };
 
 if (typeof define == 'undefined') var define = null;
-
 if (typeof retquire == 'undefined') var require = null;
 
 (function(){//define + require, default basic implementation (subset) of the commonJS AMD spec
@@ -32,13 +31,17 @@ if (!define) define = function(id, dependancies_, factory_){
 	modules[id] = {dependancies: (factory_) ? dependancies_ : [], factory: factory_ || dependancies_};
 };
 
-if (!require) require = function(names, callback_){
-	if (typeof names == 'string') names = [names];
+if (!require) require = function(ids, callback_){
+	if (typeof ids == 'string') ids = [ids];
 	var modules_ = [];
-	for (var i = 0; i < names.length; i++){
-		var name = names[i], module = modules[name], factory = module.factory, dependancies = module.dependancies;
-		if (module && loaded[name] == null) loaded[name] = (typeof factory == 'function') ? factory.apply(this, dependancies) : factory;
-		modules_.push(loaded[name]);
+	for (var i = 0; i < ids.length; i++){
+		var id = ids[i], module = modules[id];
+		if (module && loaded[id] == null){
+			var factory = module.factory, ideps = module.dependancies, dependancies = [];
+			for (var j = 0; j < ideps.length; j++) dependancies.push(require(ideps[j]));
+			loaded[name] = (typeof factory == 'function') ? factory.apply(this, dependancies) : factory;
+		}
+		modules_.push(loaded[id]);
 	}
 	if (callback_) callback_.apply(this, modules_);
 	return modules_[0];
