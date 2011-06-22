@@ -5,7 +5,9 @@ description: Contains the Class Function for easily creating, extending, and imp
 ...
 */
 
-define('Class/Class', ['Utility/typeOf', 'Utility/Accessor', 'Utility/clone', 'Utility/merge'], function(typeOf, Accessor, clone, merge){
+define('Class/Class', [
+	'Utility/typeOf', 'Host/Array', 'Host/Object', 'Utility/Accessor', 'Utility/clone', 'Utility/merge', 'Utility/forEach'
+], function(typeOf, Array, Object, Accessor){
 	
 var Class = function(params){
 
@@ -48,12 +50,10 @@ var reset = function(object){
 		var value = object[key];
 		switch (typeOf(value)){
 			case 'object':
-				var F = function(){};
-				F.prototype = value;
-				var instance = new F;
+				var instance = Object.create(value);
 				object[key] = reset(instance);
 			break;
-			case 'array': object[key] = clone(value); break;
+			case 'array': object[key] = Array.clone(value); break;
 		}
 	}
 	return object;
@@ -80,34 +80,36 @@ var wrap = function(self, key, method){
 
 new Accessor('Mutator').apply(Class);
 
-var implement = function(key, value, retainOwner){
+var implement = function(self, key, value, retainOwner){
 	
 	var mutator = Class.lookupMutator(key);
 	
 	if (mutator){
-		value = mutator.call(this, value);
+		value = mutator.call(self, value);
 		if (value == null) return;
 	}
 	
 	if (typeOf(value) == 'function'){
 		if (value.hidden_) return;
-		this.prototype[key] = (retainOwner) ? value : wrap(this, key, value);
+		self.prototype[key] = (retainOwner) ? value : wrap(self, key, value);
 	} else {
-		merge(this.prototype, key, value);
+		Object.merge(self.prototype, key, value);
 	}
 	
 };
 
-var implementClass = function(item){
+var implementClass = function(self, item){
 	var instance = new item;
-	for (var key in instance) implement.call(this, key, instance[key], true);
+	for (var key in instance) implement(self, key, instance[key], true);
 };
 
 Class.prototype.implement = function(a, b){
 	switch (typeOf(a)){
-		case 'string': implement.call(this, a, b); break;
-		case 'class': implementClass.call(this, a); break;
-		default: for (var p in a) implement.call(this, p, a[p]); break;
+		case 'string': implement(this, a, b); break;
+		case 'class': implementClass(this, a); break;
+		default: Object.forEach(a, function(value, key){
+			implement(this, key, value);
+		}, this);
 	}
 	
 	return this;
@@ -130,7 +132,7 @@ Class.defineMutators({
 
 }).defineMutator(/^protected\s(\w+)$/, function(fn, name){
 	fn.protected_ = true;
-	implement.call(this, name, fn);
+	implement(this, name, fn);
 }).defineMutator(/^linked\s(\w+)$/, function(value, name){
 	this.prototype[name] = value;
 });
