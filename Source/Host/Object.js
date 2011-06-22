@@ -5,13 +5,13 @@ description: ES5 Object methods
 ...
 */
 
-define('Host/Object', ['Core/Host', 'Host/Array'], function(Host, Array){
+define('Host/Object', ['Core/Host'], function(Host){
 	
-	var Object_ = Host(Object);
-	
+	var Object_ = Host(Object), slice = Array.prototype.slice;
+
 	var prototypize = function(generic){
 		return (generic) ? function(){
-			return generic.apply(Object_, [this].concat(Array.slice(arguments)));
+			return generic.apply(Object_, [this].concat(slice.call(arguments)));
 		} : null;
 	};
 	

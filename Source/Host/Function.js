@@ -5,9 +5,9 @@ description: ES5 Function methods
 ...
 */
 
-define('Host/Function', ['Core/Host', 'Host/Array'], function(Host, Array){
+define('Host/Function', ['Core/Host'], function(Host){
 	
-	var proto = Function.prototype;
+	var proto = Function.prototype, slice = Array.prototype.slice;
 
 	return Host(Function).implement({
 		
@@ -15,11 +15,11 @@ define('Host/Function', ['Core/Host', 'Host/Array'], function(Host, Array){
 		call: proto.call,
 
 		bind: function(bind){
-			var self = this, args = (arguments.length > 1) ? Array.slice(arguments, 1) : null;
+			var self = this, args = (arguments.length > 1) ? slice.call(arguments, 1) : null;
 
 			return function(){
 				if (!args && !arguments.length) return self.call(bind);
-				if (args && arguments.length) return self.apply(bind, args.concat(Array.slice(arguments)));
+				if (args && arguments.length) return self.apply(bind, args.concat(slice.call(arguments)));
 				return self.apply(bind, args || arguments);
 			};
 		}
