@@ -5,7 +5,7 @@ description: merge things
 ...
 */
 
-define('merge', ['Utility/typeOf', 'Utility/clone', 'Host/Array', 'Host/Object'], function(typeOf, clone, Array, Object){
+define('Utility/merge', ['Utility/typeOf', 'Utility/clone', 'Host/Array', 'Host/Object'], function(typeOf, clone, Array, Object){
 	
 	var merge = function(source, key, current){
 		switch (typeOf(current)){

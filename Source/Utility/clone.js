@@ -5,7 +5,7 @@ description: clone things
 ...
 */
 
-define('clone', ['Utility/typeOf', 'Host/Array', 'Host/Object'], function(typeOf, Array, Object){
+define('Utility/clone', ['Utility/typeOf', 'Host/Array', 'Host/Object'], function(typeOf, Array, Object){
 	
 	var clone = function(item){
 		switch (typeOf(item)){
