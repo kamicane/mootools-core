@@ -7,23 +7,14 @@ description: The Host object
 
 define('Core/Host', function(){
 
-	var slice = Array.slice || function(self){
-		return Array.prototype.slice.call(self);
-	};
+	var slice = Array.prototype.slice;
 
 	// Host class
 
 	return function Host(native_){
 	
-		var prototyping = false, prototypes = {}, generics = {}, host = function(){
-			var self = this;
-			if (!(this instanceof host)){
-				prototyping = true;
-				self = new host;
-				prototyping = false;
-			}
-			if (!prototyping) self.self_ = native_.apply(native_, arguments);
-			return self;
+		var prototypes = {}, generics = {}, host = function(){
+			return native_.apply(native_, arguments);
 		};
 	
 		host.install = function(object){
@@ -37,11 +28,9 @@ define('Core/Host', function(){
 			if (typeof key != 'string') for (var k in key) this.implement(k, key[k]); else if (!this.prototype[key] && fn){
 				var proto = (native_.prototype[key]) ? native_.prototype[key] : null;
 				if (!proto) proto = prototypes[key] = fn;
-				this.prototype[key] = function(){
-					return proto.apply(this.self_, arguments);
-				};
+				this.prototype[key] = proto;
 				this.extend(key, function(){
-					var args = slice(arguments);
+					var args = slice.call(arguments);
 					return proto.apply(args.shift(0), args);
 				});
 			}
@@ -55,10 +44,6 @@ define('Core/Host', function(){
 				this[key] = generic;
 			}
 			return this;
-		};
-	
-		host.prototype.valueOf = function(){
-			return this.self_;
 		};
 	
 		return host;
