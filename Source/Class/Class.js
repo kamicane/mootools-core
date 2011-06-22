@@ -2,43 +2,46 @@
 ---
 name: Class
 description: Contains the Class Function for easily creating, extending, and implementing reusable Classes.
-requires: [Type, Array, String, Function, Number, Object, Accessor]
-provides: Class
 ...
 */
 
-(function(){
-
-var Class = this.Class = new Type('Class', function(params){
+define('Class/Class', ['Utility/typeOf', 'Utility/Accessor', 'Utility/clone', 'Utility/merge'], function(typeOf, Accessor, clone, merge){
 	
-	if (instanceOf(params, Function)) params = {'initialize': params};
+var Class = function(params){
+
+	if (typeOf(params) == 'function') params = {initialize: params};
 	
 	var newClass = function(){
 		reset(this);
-		if (newClass.$prototyping) return this;
-		this.$caller = null;
+		if (newClass.prototyping_) return this;
+		this.caller_ = null;
 		var value = (this.initialize) ? this.initialize.apply(this, arguments) : this;
-		this.$caller = this.caller = null;
+		this.caller_ = this.caller = null;
 		return value;
-	}.extend(this).hide();
+	};
+
+	newClass.hidden_ = true;
+	
+	for (var k in Class.prototype) newClass[k] = Class.prototype[k];
 
 	newClass.implement(params);
-	
-	newClass.$constructor = Class;
-	newClass.prototype.$constructor = newClass;
+
+	newClass.constructor_ = Class;
+	newClass.prototype.constructor_ = newClass;
 	newClass.prototype.parent = parent;
-
+	
 	return newClass;
-
-});
+};
 
 var parent = function(){
-	if (!this.$caller) throw new Error('The method "parent" cannot be called.');
-	var name = this.$caller.$name, parent = this.$caller.$owner.parent;
+	if (!this.caller_) throw new Error('The method "parent" cannot be called.');
+	var name = this.caller_.name_, parent = this.caller_.owner_.parent;
 	var previous = (parent) ? parent.prototype[name] : null;
 	if (!previous) throw new Error('The method "' + name + '" has no parent.');
 	return previous.apply(this, arguments);
-}.hide();
+};
+
+parent.hidden_ = true;
 
 var reset = function(object){
 	for (var key in object){
@@ -50,26 +53,32 @@ var reset = function(object){
 				var instance = new F;
 				object[key] = reset(instance);
 			break;
-			case 'array': object[key] = value.clone(); break;
+			case 'array': object[key] = clone(value); break;
 		}
 	}
 	return object;
 };
 
 var wrap = function(self, key, method){
-	if (method.$origin) method = method.$origin;
+	if (method.origin_) method = method.origin_;
 	
-	return function(){
-		if (method.$protected && this.$caller == null) throw new Error('The method "' + key + '" cannot be called.');
-		var caller = this.caller, current = this.$caller;
-		this.caller = current; this.$caller = arguments.callee;
+	var wrapped = function(){
+		if (method.protected_ && this.caller_ == null) throw new Error('The method "' + key + '" cannot be called.');
+		var caller = this.caller, current = this.caller_;
+		this.caller = current; this.caller_ = wrapped;
 		var result = method.apply(this, arguments);
-		this.$caller = current; this.caller = caller;
+		this.caller_ = current; this.caller = caller;
 		return result;
-	}.extend({$owner: self, $origin: method, $name: key});
+	};
+	
+	wrapped.owner_ = self;
+	wrapped.name_ = key;
+	wrapped.origin_ = method;
+	
+	return wrapped;
 };
 
-Class.extend(new Accessor('Mutator'));
+new Accessor('Mutator').apply(Class);
 
 var implement = function(key, value, retainOwner){
 	
@@ -81,10 +90,10 @@ var implement = function(key, value, retainOwner){
 	}
 	
 	if (typeOf(value) == 'function'){
-		if (value.$hidden) return;
+		if (value.hidden_) return;
 		this.prototype[key] = (retainOwner) ? value : wrap(this, key, value);
 	} else {
-		Object.merge(this.prototype, key, value);
+		merge(this.prototype, key, value);
 	}
 	
 };
@@ -94,8 +103,7 @@ var implementClass = function(item){
 	for (var key in instance) implement.call(this, key, instance[key], true);
 };
 
-Class.implement('implement', function(a, b){
-	
+Class.prototype.implement = function(a, b){
 	switch (typeOf(a)){
 		case 'string': implement.call(this, a, b); break;
 		case 'class': implementClass.call(this, a); break;
@@ -103,27 +111,30 @@ Class.implement('implement', function(a, b){
 	}
 	
 	return this;
-	
-}).defineMutators({
+};
+
+Class.defineMutators({
 
 	Extends: function(parent){
 		this.parent = parent;
-		parent.$prototyping = true;
+		parent.prototyping_ = true;
 		var proto = new parent;
-		delete parent.$prototyping;
+		delete parent.prototyping_;
 		this.prototype = proto;
 	},
 
 	Implements: function(items){
-		Array.from(items).each(function(item){
-			this.implement(item);
-		}, this);
+		if (typeOf(items) != 'array') items = [items];
+		for (var i = 0; i < items.length; i++) this.implement(items[i]);
 	}
 
 }).defineMutator(/^protected\s(\w+)$/, function(fn, name){
-	implement.call(this, name, fn.protect());
+	fn.protected_ = true;
+	implement.call(this, name, fn);
 }).defineMutator(/^linked\s(\w+)$/, function(value, name){
 	this.prototype[name] = value;
 });
 
-})();
+return Class;
+
+});
