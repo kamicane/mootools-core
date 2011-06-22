@@ -5,7 +5,7 @@ description: JSON encoder and decoder
 ...
 */
 
-define('JSON', ['Utility/typeOf', 'Host/Array'], function(typeOf, Array){
+define('Utility/JSON', ['Utility/typeOf', 'Host/Array'], function(typeOf, Array){
 	
 var json = function(){}, JSON = (typeof JSON == 'undefined') ? {} : JSON;
 
