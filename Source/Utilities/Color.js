@@ -2,14 +2,16 @@
 ---
 name: Color
 description: Class to create and manipulate colors. Includes HSB «-» RGB «-» HEX conversions. Supports alpha for each type.
-requires: [Type, Array, Number, String, Accessor]
-provides: Color
 ...
 */
 
-(function(){
+define('Utility/Color', ['Utility/typeOf', 'Utility/Accessor', 'Host/Array'], function(typeOf, Accessor, Array){
+	
+var limit = function(num, min, max){
+	return Math.min(max, Math.max(min, num));
+};
 
-var Color = this.Color = new Type('color', function(color, type){
+var Color = function(color, type){
 	
 	switch(typeOf(color)){
 		case 'string':
@@ -32,37 +34,39 @@ var Color = this.Color = new Type('color', function(color, type){
 	this.blue = color[2];
 	this.alpha = color[3];
 
-});
+};
 
-Color.extend(new Accessor('Color')).defineColors({
+new Accessor('Color').apply(Color);
+
+Color.defineColors({
 	maroon: '#800000', red: '#ff0000', orange: '#ffA500', yellow: '#ffff00', olive: '#808000',
 	purple: '#800080', fuchsia: "#ff00ff", white: '#ffffff', lime: '#00ff00', green: '#008000',
 	navy: '#000080', blue: '#0000ff', aqua: '#00ffff', teal: '#008080',
 	black: '#000000', silver: '#c0c0c0', gray: '#808080'
 });
 
-var listMatch = /([-.\d]+)\s*,\s*([-.\d]+)\s*,\s*([-.\d]+)\s*,?\s*([-.\d]*)/;
-var hexMatch = /^#?([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{0,2})$/i;
+var listMatch = /([-.\d]+)\s*,\s*([-.\d]+)\s*,\s*([-.\d]+)\s*,?\s*([-.\d]*)/,
+	hexMatch = /^#?([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{0,2})$/i;
 
 Color.parseRGB = function(color){
-	return color.match(listMatch).slice(1).map(function(bit, i){
-		return (i < 3) ? Math.round(((bit %= 256) < 0) ? bit + 256 : bit) : (((bit === '') ? 1 : Number(bit))).limit(0, 1);
+	return Array.map(color.match(listMatch).slice(1), function(bit, i){
+		return (i < 3) ? Math.round(((bit %= 256) < 0) ? bit + 256 : bit) : limit((bit === '') ? 1 : Number(bit), 0, 1);
 	});
 };
-	
+
 Color.parseHEX = function(color){
 	if (color.length == 1) color = color + color + color;
-	return color.match(hexMatch).slice(1).map(function(bit, i){
+	return Array.map(color.match(hexMatch).slice(1), function(bit, i){
 		if (i == 3) return (bit) ? parseInt(bit, 16) / 255 : 1;
 		return parseInt((bit.length == 1) ? bit + bit : bit, 16);
 	});
 };
 
 Color.parseHSB = function(color){
-	var hsb = color.match(listMatch).slice(1).map(function(bit, i){
+	var hsb = Array.map(color.match(listMatch).slice(1), function(bit, i){
 		if (i === 0) return Math.round(((bit %= 360) < 0) ? (bit + 360) : bit);
-		else if (i < 3) return Math.round(bit).limit(0, 100);
-		else return ((bit === '') ? 1 : Number(bit)).limit(0, 1);
+		else if (i < 3) return limit(Math.round(bit), 0, 100);
+		else return limit((bit === '') ? 1 : Number(bit), 0, 1);
 	});
 	
 	var a = hsb[3];
@@ -91,7 +95,7 @@ var toString = function(type, array){
 	return type + '(' + array.join(', ') + ')';
 };
 
-Color.implement({
+Color.prototype = {
 
 	toHSB: function(array){
 		var red = this.red, green = this.green, blue = this.blue, alpha = this.alpha;
@@ -114,7 +118,7 @@ Color.implement({
 		var a = this.alpha;
 		var alpha = ((a = Math.round((a * 255)).toString(16)).length == 1) ? a + a : a;
 		
-		var hex = [this.red, this.green, this.blue].map(function(bit){
+		var hex = Array.map([this.red, this.green, this.blue], function(bit){
 			bit = bit.toString(16);
 			return (bit.length == 1) ? '0' + bit : bit;
 		});
@@ -127,7 +131,7 @@ Color.implement({
 		return (array) ? rgb : toString('rgb', rgb);
 	}
 
-});
+};
 
 Color.prototype.toString = Color.prototype.toRGB;
 
@@ -135,18 +139,14 @@ Color.hex = function(hex){
 	return new Color(hex, 'hex');
 };
 
-if (this.hex == null) this.hex = Color.hex;
-
 Color.hsb = function(h, s, b, a){
 	return new Color([h || 0, s || 0, b || 0, (a == null) ? 1 : a], 'hsb');
 };
-
-if (this.hsb == null) this.hsb = Color.hsb;
 
 Color.rgb = function(r, g, b, a){
 	return new Color([r || 0, g || 0, b || 0, (a == null) ? 1 : a], 'rgb');
 };
 
-if (this.rgb == null) this.rgb = Color.rgb;
+return Color;
 
-})();
+});
