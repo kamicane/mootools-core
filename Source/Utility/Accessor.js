@@ -5,7 +5,7 @@ description: Access things
 ...
 */
 
-define('Utility/Accessor', ['Utility/typeOf', 'Utility/forEach', 'Host/Array'], function(typeOf, forEach, Array){
+define('Utility/Accessor', ['Utility/typeOf', 'Host/Object', 'Host/Array', 'Utility/forEach'], function(typeOf, Object, Array){
 
 return function(singular, plural){
 
@@ -49,15 +49,7 @@ return function(singular, plural){
 	};
 
 	var eachSingular = this[each + singular] = function(fn, bind){
-		forEach(accessor, fn, bind);
-	};
-	
-	var apply = this.apply = function(object){
-		object[define + singular] = defineSingular;
-		object[define + plural] = definePlural;
-		object[lookup + singular] = lookupSingular;
-		object[lookup + plural] = lookupPlural;
-		object[each + singular] = eachSingular;
+		Object.forEach(accessor, fn, bind);
 	};
 
 };

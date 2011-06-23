@@ -5,29 +5,24 @@ description: merge things
 ...
 */
 
-define('Utility/merge', ['Utility/typeOf', 'Utility/clone', 'Host/Array', 'Host/Object'], function(typeOf, clone, Array, Object){
+define('Utility/merge', ['Utility/typeOf', 'Host/Object'], function(typeOf, Object){
 	
-	var merge = function(source, key, current){
-		switch (typeOf(current)){
-			case 'object':
-				if (typeOf(source[key]) == 'object') Object.merge(source[key], current);
-				else source[key] = clone.object(current);
-			break;
-			case 'array': source[key] = Array.clone(current); break;
-			default: source[key] = current;
+	
+	var merge = function(self, key, value){
+		if (typeof key == 'string'){
+			if (typeOf(self[key]) == 'object' && typeOf(value) == 'object') merge(self[key], value);
+			else self[key] = value;
+		} else for (var i = 1, l = arguments.length; i < l; i++){
+			var object = arguments[i];
+			for (var k in object) merge(self, k, object[k]);
 		}
-		return source;
+		return self;
 	};
 	
-	Object.implement('merge', function(k, v){
-		if (typeof k == 'string') return merge(this, k, v);
-		for (var i = 1, l = arguments.length; i < l; i++){
-			var object = arguments[i];
-			for (var key in object) merge(this, key, object[key]);
-		}
-		return this;
+	Object.extend('merge', merge).implement('merge', function(key, value){
+		return merge(this, key, value);
 	});
 	
-	return Object.merge;
+	return merge;
 	
 });
