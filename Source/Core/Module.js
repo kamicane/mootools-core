@@ -5,8 +5,7 @@ description: simple Module Definition implementation
 ...
 */
 
-if (typeof define == 'undefined') var define;
-if (typeof require == 'undefined') var require;
+var define, require;
 
 (function(){//define + require, default basic implementation (subset) of the commonJS AMD spec
 
