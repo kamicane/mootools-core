@@ -25,11 +25,13 @@ define('Core/SandBox', [
 		};
 	}
 	
-	return function sb(item){
+	var sb = function(item){
 		if (item == null) return null;
 		item = item.valueOf();
 		var type = typeOf(item).toUpperCase(), sandbox = sandboxes[type];
 		return (sandbox) ? new sandbox(item) : item;
 	};
+	
+	return sb;
 	
 });
