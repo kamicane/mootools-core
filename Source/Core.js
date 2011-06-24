@@ -15,7 +15,7 @@ description: The heart of MooTools
 ...
 */
 
-var MooTools = {
+define('Core', {
 	version: '1.99dev',
 	build: '%build%'
-};
+});
