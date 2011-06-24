@@ -213,7 +213,7 @@ Element.prototype.toString = function(){
 	var tag = this.get('tag'), id = this.get('id'), className = this.get('class');
 	var str = '<' + tag;
 	if (id) str += '#' + id;
-	if (className) str += '.' + className.replace(/\s+/, '.');
+	if (className) str += '.' + className.replace(/\s+/g, '.');
 	return str + '>';
 };
 
