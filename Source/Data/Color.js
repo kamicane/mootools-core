@@ -5,7 +5,7 @@ description: Class to create and manipulate colors. Includes HSB «-» RGB «-»
 ...
 */
 
-define('Utility/Color', ['Utility/typeOf', 'Utility/Accessor', 'Host/Array'], function(typeOf, Accessor, Array){
+define('Data/Color', ['Utility/typeOf', 'Data/Accessor', 'Host/Array'], function(typeOf, Accessor, Array){
 	
 var limit = function(num, min, max){
 	return Math.min(max, Math.max(min, num));

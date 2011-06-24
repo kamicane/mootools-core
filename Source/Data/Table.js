@@ -7,7 +7,7 @@ provides: Table
 ...
 */
 	
-define('Utility/Table', ['Host/Array'], function(Array){
+define('Data/Table', ['Host/Array'], function(Array){
 	
 return function(){
 
