@@ -14,7 +14,7 @@ define('Core/Host', function(){
 	return function Host(native_){
 	
 		var prototypes = {}, generics = {}, host = function(){
-			return native_.apply(native_, arguments);
+			return (this instanceof host) ? this : native_.apply(native_, arguments);
 		};
 	
 		host.install = function(object){
@@ -26,9 +26,7 @@ define('Core/Host', function(){
 	
 		host.implement = function(key, fn){
 			if (typeof key != 'string') for (var k in key) this.implement(k, key[k]); else if (!this.prototype[key] && fn){
-				var proto = (native_.prototype[key]) ? native_.prototype[key] : null;
-				if (!proto) proto = prototypes[key] = fn;
-				this.prototype[key] = proto;
+				var proto = this.prototype[key] = prototypes[key] = (native_.prototype[key] || fn);
 				this.extend(key, function(){
 					var args = slice.call(arguments);
 					return proto.apply(args.shift(0), args);
@@ -38,11 +36,7 @@ define('Core/Host', function(){
 		};
 	
 		host.extend = function(key, fn){
-			if (typeof key != 'string') for (var k in key) this.extend(k, key[k]); else if (!this[key] && fn){
-				var generic = (native_[key]) ? native_[key] : null;
-				if (!generic) generic = generics[key] = fn;
-				this[key] = generic;
-			}
+			if (typeof key != 'string') for (var k in key) this.extend(k, key[k]); else if (!this[key] && fn) generics[key] = this[key] = (native_[key] || fn);
 			return this;
 		};
 	
