@@ -1,12 +1,11 @@
 /*
 ---
-name: Slick.Parser
+name: Parser
 description: Standalone CSS3 Selector parser
-provides: Slick.Parser
 ...
 */
 
-(function(){
+define('Slick/Parser', function(){
 
 var parsed,
 	separatorIndex,
@@ -63,7 +62,9 @@ var reverse = function(expression){
 };
 
 var escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
-	return string.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
+	return string.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, function(match){
+		return '\\' + match;
+	});
 };
 
 var regexp = new RegExp(
@@ -213,16 +214,6 @@ function parser(
 	return '';
 };
 
-// Slick NS
+return {parse: parse, escapeRegExp: escapeRegExp};
 
-var Slick = (this.Slick || {});
-
-Slick.parse = function(expression){
-	return parse(expression);
-};
-
-Slick.escapeRegExp = escapeRegExp;
-
-if (!this.Slick) this.Slick = Slick;
-
-}).apply(/*<CommonJS>*/(typeof exports != 'undefined') ? exports : /*</CommonJS>*/this);
+});
