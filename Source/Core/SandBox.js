@@ -6,16 +6,17 @@ var hosts = {ARRAY: A, DATE: D, FUNCTION: F, NUMBER: N, OBJECT: O, REGEXP: R, ST
 	sandboxes = {};
 
 for (var h in hosts){
-	var host = hosts[h], proto = new host, sandbox = sandboxes[h] = function(o){
+	var host = hosts[h], proto = new host, sandbox = sandboxes[h] = function(o, type){
 		this.self = o;
+		this.type = type;
 	};
 
 	for (var p in proto) (function(key, method){
 		sandbox.prototype[key] = function(){
-			return sb(method.apply(this.self, arguments));
+			return sb(method.apply(this.self, arguments), this);
 		};
 	})(p, proto[p]);
-	
+
 	sandbox.prototype.valueOf = function(){
 		return this.self.valueOf();
 	};
@@ -25,11 +26,12 @@ for (var h in hosts){
 	};
 }
 
-var sb = function(item){
+var sb = function(item, sb_){
 	if (item == null) return null;
 	item = item.valueOf();
-	var type = typeOf(item).toUpperCase(), sandbox = sandboxes[type];
-	return (sandbox) ? new sandbox(item) : item;
+	var type = typeOf(item).toUpperCase(), sandbox;
+	return (sb_ && sb_.type == type) ? (sb_.self = item, sb_)
+		: ((sandbox = sandboxes[type]) ? new sandbox(item, type) : item);
 };
 
 return sb;
