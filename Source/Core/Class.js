@@ -6,8 +6,8 @@ description: Contains the Class Function for easily creating, extending, and imp
 */
 
 define('Core/Class', [
-	'Utility/typeOf', 'Host/Object', 'Host/Array', 'Data/Accessor', 'Utility/merge'// , 'Utility/clone', 'Utility/merge', 'Utility/forEach'
-], function(typeOf, Object, Array, Accessor){
+	'Utility/typeOf', 'Host/Object', 'Data/Accessor', 'Utility/merge'//, 'Host/Array' , 'Utility/clone', 'Utility/merge', 'Utility/forEach'
+], function(typeOf, Object, Accessor){
 
 var prototyping = false;
 
@@ -38,7 +38,7 @@ var Class = function(params){
 	if (!instance instanceof Class) return new Error('"Extends" cannot be called with a function not inheriting from "Class"');
 	newClass.parent = ParentClass;
 	newClass.prototype = instance;
-	delete params.Extends;
+	if (params) delete params.Extends;
 
 	newClass.implement = implement;
 	newClass.implement(params);
