@@ -1,11 +1,15 @@
 /*
 ---
 name: String
-description: String prototypes and generics.
-requires: Type
-provides: String
+description: custom String prototypes and generics.
 ...
 */
+
+define('Types/String', ['Host/String'], function(String){
+
+String.extend('from', function(item){
+	return item + '';
+});
 
 String.implement({
 
@@ -22,7 +26,7 @@ String.implement({
 	},
 
 	clean: function(){
-		return this.replace(/\s+/g, ' ').trim();
+		return String.trim(this.replace(/\s+/g, ' '));
 	},
 
 	camelCase: function(){
@@ -61,5 +65,9 @@ String.implement({
 	toFloat: function(){
 		return parseFloat(this);
 	}
+
+});
+
+return String;
 
 });

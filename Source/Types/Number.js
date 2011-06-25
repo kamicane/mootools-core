@@ -1,11 +1,16 @@
 /*
 ---
 name: Number
-description: Number prototypes and generics.
-requires: Type
-provides: Number
+description: custom Number prototypes and generics.
 ...
 */
+
+define('Types/Number', ['Host/Number', 'Host/Array'], function(Number, Array){
+
+Number.extend('from', function(item){
+	var number = parseFloat(item);
+	return isFinite(number) ? number : null;
+});
 
 Number.extend({
 	
@@ -40,8 +45,12 @@ Number.implement({
 
 });
 
-['abs', 'acos', 'asin', 'atan', 'atan2', 'ceil', 'cos', 'exp', 'floor', 'log', 'max', 'min', 'pow', 'sin', 'sqrt', 'tan'].each(function(name){
+Array.forEach(['abs', 'acos', 'asin', 'atan', 'atan2', 'ceil', 'cos', 'exp', 'floor', 'log', 'max', 'min', 'pow', 'sin', 'sqrt', 'tan'], function(name){
 	Number.extend(name, Math[name]).implement(name, function(){
 		return Math[name].apply(null, [this].concat(Array.slice(arguments)));
 	});
+});
+
+return Number;
+
 });
