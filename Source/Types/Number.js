@@ -49,7 +49,7 @@ var names = 'abs,acos,asin,atan,atan2,ceil,cos,exp,floor,log,max,min,pow,sin,sqr
 	i = names.length, slice = Array.prototype.slice;
 
 while (i--) (function(name){
-	Number.implement(name, function(){
+	Number.extend(name, Math[name]).implement(name, function(){
 		return Math[name].apply(null, [this].concat(slice.call(arguments)));
 	});
 })(names[i]);
