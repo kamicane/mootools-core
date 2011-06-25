@@ -5,15 +5,15 @@ description: custom Number prototypes and generics.
 ...
 */
 
-define('Types/Number', ['Host/Number', 'Host/Array'], function(Number, Array){
-
-Number.extend('from', function(item){
-	var number = parseFloat(item);
-	return isFinite(number) ? number : null;
-});
+define('Types/Number', ['Host/Number'], function(Number){
 
 Number.extend({
-	
+
+	from: function(item){
+		var number = parseFloat(item);
+		return isFinite(number) ? number : null;
+	},
+
 	random: function(min, max){
 		return Math.floor(Math.random() * (max - min + 1) + min);
 	}
@@ -45,11 +45,14 @@ Number.implement({
 
 });
 
-Array.forEach(['abs', 'acos', 'asin', 'atan', 'atan2', 'ceil', 'cos', 'exp', 'floor', 'log', 'max', 'min', 'pow', 'sin', 'sqrt', 'tan'], function(name){
-	Number.extend(name, Math[name]).implement(name, function(){
-		return Math[name].apply(null, [this].concat(Array.slice(arguments)));
+var names = 'abs,acos,asin,atan,atan2,ceil,cos,exp,floor,log,max,min,pow,sin,sqrt,tan'.split(','),
+	i = names.length, slice = Array.prototype.slice;
+
+while (i--) (function(name){
+	Number.implement(name, function(){
+		return Math[name].apply(null, [this].concat(slice.call(arguments)));
 	});
-});
+})(names[i]);
 
 return Number;
 
