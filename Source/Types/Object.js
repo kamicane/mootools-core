@@ -26,14 +26,6 @@ Object.extend({
 
 Object.implement({
 	
-	keys: function(object){
-		var keys = [];
-		for (var key in object){
-			if (object.hasOwnProperty(key)) keys.push(key);
-		}
-		return keys;
-	},
-	
 	forEach: function(fn, context){
 		for (var key in this){
 			if (this.hasOwnProperty(key)) fn.call(context, this[key], key, this);
@@ -63,30 +55,30 @@ Object.implement({
 		return results;
 	},
 
-	map: function(object, fn, bind){
+	map: function(fn, bind){
 		var results = {};
-		for (var key in object) results[key] = fn.call(bind, object[key], key, object);
+		for (var key in this) results[key] = fn.call(bind, this[key], key, this);
 		return results;
 	},
 
-	filter: function(object, fn, bind){
+	filter: function(fn, bind){
 		var results = {};
-		for (var key in object){
-			if (fn.call(bind, object[key], key, object)) results[key] = object[key];
+		for (var key in this){
+			if (fn.call(bind, this[key], key, this)) results[key] = this[key];
 		}
 		return results;
 	},
 
-	every: function(object, fn, bind){
-		for (var key in object){
-			if (!fn.call(bind, object[key], key)) return false;
+	every: function(fn, bind){
+		for (var key in this){
+			if (!fn.call(bind, this[key], key)) return false;
 		}
 		return true;
 	},
 
-	some: function(object, fn, bind){
-		for (var key in object){
-			if (fn.call(bind, object[key], key)) return true;
+	some: function(fn, bind){
+		for (var key in this){
+			if (fn.call(bind, this[key], key)) return true;
 		}
 		return false;
 	},
