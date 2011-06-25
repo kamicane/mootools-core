@@ -5,7 +5,7 @@ description: Function prototypes and generics.
 ...
 */
 
-define('Types/Function', ['Host/Function'], function(Function){
+define('Types/Function', ['Utility/typeOf', 'Host/Function', 'Host/Array'], function(typeOf, Function, Array){
 	
 Function.extend({
 
@@ -28,9 +28,10 @@ Function.extend({
 
 Function.implement({
 
-	attempt: function(args, bind){
+	attempt: function(bind){
+		var args = Array.slice(arguments);
 		try {
-			return this.apply(bind, args);
+			return this.apply(args.shift(0), args);
 		} catch (e){}
 
 		return null;
