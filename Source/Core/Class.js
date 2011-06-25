@@ -58,6 +58,7 @@ Class.implement = function(key, fn){
 	if (typeof key != 'string') for (var k in key) this.implement(k, key[k]); else {
 		this.prototype[key] = fn;
 	}
+	return this;
 };
 
 var reset = function(object){
