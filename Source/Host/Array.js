@@ -6,16 +6,16 @@ description: ES5 Array methods
 */
 
 define('Host/Array', ['Core/Host'], function(Host){
-	
-var proto = Array.prototype;
 
-return Host(Array).implement({
-	
-	//methods that we want available only on environments that already supports them on the native object
-	
-	pop: proto.pop, push: proto.push, reverse: proto.reverse, shift: proto.shift, sort: proto.sort, splice: proto.splice, unshift: proto.unshift,
-	concat: proto.concat, join: proto.join, slice: proto.slice, lastIndexOf: proto.lastIndexOf, reduce: proto.reduce, reduceRight: proto.reduceRight,
-	
+//methods that we want available only on environments that already supports them on the native object
+
+var names = 'pop,push,reverse,shift,sort,splice,unshift,concat,join,slice,lastIndexOf,reduce,reduceRight'.split(','),
+	i = names.length, proto = Array.prototype, Array_ = Host(Array);
+
+while (i--) Array_.implement(names[i], proto[names[i]]);
+
+return Array_.implement({
+
 	//methods that we want available in every environment
 
 	filter: function(fn, bind){
