@@ -5,19 +5,10 @@ description: custom Object prototypes and generics
 ...
 */
 
-define('Types/Object', ['Host/Object'], function(Object){
+define('Utility/Object', ['Host/Object'], function(Object){
 
 Object.extend({
 
-	from: function(keys, values){
-		var object = {};
-		for (var i = 0; i < keys.length; i++){
-			var value = values[i];
-			object[keys[i]] = (value != null) ? value : null;
-		}
-		return object;
-	},
-	
 	isEnumerable: function(self){
 		return (self != null && typeof self == 'object' && typeof self.length == 'number');
 	}
