@@ -5,11 +5,7 @@ description: for each
 ...
 */
 
-define('Utility/forEach', ['Utility/typeOf', 'Host/Array', 'Host/Object'], function(typeOf, Array, Object){
-	
-Object.implement('forEach', function(fn, context){
-	for (var key in this) if (this.hasOwnProperty(key)) fn.call(context, this[key], key, this);
-});
+define('Utility/forEach', ['Utility/typeOf', 'Host/Array', 'Utility/Object'], function(typeOf, Array, Object){
 
 return function(self, fn, context){
 	switch(typeOf(self)){
