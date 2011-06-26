@@ -34,7 +34,7 @@ return function(item){
 		}
 	}
 
-	return type;
+	return 'object';
 };
 	
 });
