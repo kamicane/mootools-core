@@ -5,14 +5,7 @@ description: Custom Array prototypes and generics.
 ...
 */
 
-define('Types/Array', ['Utility/typeOf', 'Host/Array', 'Types/Object'], function(typeOf, Array, Object){
-
-Array.extend('from', function(item){
-	if (item == null) return [];
-	if (typeOf(item) == 'array') return item;
-	if (Object.isEnumerable(item)) return Array.slice(item);
-	return [item];
-});
+define('Utility/Array', ['Utility/typeOf', 'Host/Array', 'Utility/Object'], function(typeOf, Array, Object){
 
 Array.implement({
 
