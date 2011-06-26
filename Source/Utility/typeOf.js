@@ -9,7 +9,7 @@ define('Utility/typeOf', function(){
 	
 var toString = Object.prototype.toString,
 	types = {'[object Text]': 'textnode'},
-	_types = 'Array,String,Function,Date,NodeList,Arguments'.split(',');
+	_types = 'Array,String,Function,Date,NodeList,Arguments,RegExp'.split(',');
 
 for (var i = _types.length; i--;) types['[object ' + _types[i] + ']'] = _types[i].toLowerCase();
 
@@ -31,10 +31,9 @@ return function(item){
 			if ('item' in item) return 'nodelist';
 		}
 	}
-	if (type.slice(-7) == 'Element') return (types[_class] = 'element');
+	if (type.slice(-7) == 'Element') type = 'element';
 
-	return type.toLowerCase();
-
+	return (types[_class] = type.toLowerCase());
 };
 	
 });
