@@ -1,3 +1,4 @@
+
 define('Core/SandBox', [
 	'Utility/typeOf', 'Host/Array', 'Host/Date', 'Host/Function', 'Host/Number', 'Host/Object', 'Host/RegExp', 'Host/String'
 ], function(typeOf, A, D, F, N, O, R, S){
@@ -5,17 +6,25 @@ define('Core/SandBox', [
 var hosts = {ARRAY: A, DATE: D, FUNCTION: F, NUMBER: N, OBJECT: O, REGEXP: R, STRING: S},
 	sandboxes = {};
 
-for (var h in hosts){
-	var host = hosts[h], proto = new host, sandbox = sandboxes[h] = function(o, type){
+var implement = function(sandbox, key, method){
+	sandbox.prototype[key] = function(){
+		return sb(method.apply(this.self, arguments), this);
+	};
+};
+
+for (var h in hosts) (function(host, h){
+
+	var proto = new host, hostImplement = host.implement, sandbox = sandboxes[h] = function(o, type){
 		this.self = o;
 		this.type = type;
 	};
 
-	for (var p in proto) (function(key, method){
-		sandbox.prototype[key] = function(){
-			return sb(method.apply(this.self, arguments), this);
-		};
-	})(p, proto[p]);
+	for (var p in proto) implement(sandbox, p, proto[p]);
+
+	host.implement = function(key, fn){
+		if (typeof key == 'string') implement(sandbox, key, fn);
+		return hostImplement.call(this, key, fn);
+	};
 
 	sandbox.prototype.valueOf = function(){
 		return this.self.valueOf();
@@ -24,7 +33,8 @@ for (var h in hosts){
 	sandbox.prototype.toString = function(){
 		return this.self.toString();
 	};
-}
+
+})(hosts[h], h);
 
 var sb = function(item, sb_){
 	if (item == null) return null;
