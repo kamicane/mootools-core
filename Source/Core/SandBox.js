@@ -22,8 +22,9 @@ for (var h in hosts) (function(host, h){
 	for (var p in proto) implement(sandbox, p, proto[p]);
 
 	host.implement = function(key, fn){
-		if (typeof key == 'string') implement(sandbox, key, fn);
-		return hostImplement.call(this, key, fn);
+		hostImplement.call(this, key, fn);
+		if (fn && this.prototype[key] == fn) implement(sandbox, key, fn);
+		return this;
 	};
 
 	sandbox.prototype.valueOf = function(){
