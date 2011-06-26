@@ -5,7 +5,7 @@ description: Access things
 ...
 */
 
-define('Data/Accessor', ['Utility/typeOf', 'Host/Object', 'Host/Array', 'Utility/forEach'], function(typeOf, Object, Array){
+define('Data/Accessor', ['Utility/typeOf', 'Utility/Object', 'Host/Array'], function(typeOf, Object, Array){
 
 return function(singular, plural){
 
