@@ -2,21 +2,19 @@
 ---
 name: Timer
 description: The basic Timer logic.
-requires: Array
-provides: Timer
 ...
 */
 
-(function(){
+define('Utility/Timer', ['Host/Date', 'Utility/Array'], function(Date, Array){
 
 var timerCallBacks = {}, timerRunners = {};
 
-var Timer = this.Timer = function(fps){
-	
+return function(fps){
+
 	var ms = Math.round(1000 / fps);
-	
+
 	var fpsCallBacks = timerCallBacks[fps] || (timerCallBacks[fps] = []);
-	
+
 	var step = function(){
 		if (!timerRunners[fps]) timerRunners[fps] = setTimeout(function(){
 			delete timerRunners[fps];
@@ -25,22 +23,22 @@ var Timer = this.Timer = function(fps){
 			if (fpsCallBacks.length) step();
 		}, ms);
 	};
-	
+
 	var push = function(callBack){
-		fpsCallBacks.include(callBack);
+		Array.include(fpsCallBacks, callBack);
 		step();
 	};
-	
+
 	var pull = function(callBack){
-		fpsCallBacks.erase(callBack);
+		Array.erase(fpsCallBacks, callBack);
 	};
-	
+
 	var running = function(){
 		return !!(fpsCallBacks.length);
 	};
-	
+
 	return {push: push, pull: pull, running: running};
-	
+
 };
 
-})();
+});
