@@ -5,17 +5,9 @@ description: custom String prototypes and generics.
 ...
 */
 
-define('Types/String', ['Host/String'], function(String){
-
-String.extend('from', function(item){
-	return item + '';
-});
+define('Utility/String', ['Host/String'], function(String){
 
 String.implement({
-
-	test: function(regex, params){
-		return ((typeof regex == 'string') ? new RegExp(regex, params) : regex).test(this);
-	},
 
 	contains: function(string, separator){
 		return ((separator) ? (separator + this + separator).indexOf(separator + string + separator) : this.indexOf(string)) > -1;
@@ -45,25 +37,6 @@ String.implement({
 		return this.replace(/\b[a-z]/g, function(match){
 			return match.toUpperCase();
 		});
-	},
-
-	escapeRegExp: function(){
-		return this.replace(/([-.*+?^${}()|[\]\/\\])/g, '\\$1');
-	},
-
-	substitute: function(object, regexp){
-		return this.replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name){
-			if (match.charAt(0) == '\\') return match.slice(1);
-			return (object[name] != null) ? object[name] : '';
-		});
-	},
-	
-	toInt: function(base){
-		return parseInt(this, base || 10);
-	},
-	
-	toFloat: function(){
-		return parseFloat(this);
 	}
 
 });
