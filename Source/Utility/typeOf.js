@@ -7,10 +7,10 @@ description: type of
 
 define('Utility/typeOf', function(){
 	
-var toString = Object.prototype.toString;
+var toString = Object.prototype.toString,
+	types = {'[object Text]': 'textnode'},
+	_types = 'Array,String,Function,Date,NodeList,Arguments'.split(',');
 
-var types = {'[object Text]': 'textnode'},
-	_types = 'Array String Function Date NodeList Arguments'.split(' ');
 for (var i = _types.length; i--;) types['[object ' + _types[i] + ']'] = _types[i].toLowerCase();
 
 return function(item){
