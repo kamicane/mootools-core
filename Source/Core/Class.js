@@ -5,9 +5,7 @@ description: Contains the Class Function for easily creating, extending, and imp
 ...
 */
 
-define('Core/Class', [
-	'Utility/typeOf', 'Host/Object', 'Data/Accessor', 'Utility/merge'//, 'Host/Array' , 'Utility/clone', 'Utility/merge', 'Utility/forEach'
-], function(typeOf, Object, Accessor){
+define('Core/Class', ['Utility/typeOf', 'Host/Object', 'Data/Accessor', 'Utility/merge'], function(typeOf, Object, Accessor){
 
 var prototyping = false;
 
