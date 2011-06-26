@@ -19,10 +19,12 @@ return function(item){
 	var _class = toString.call(item), type = types[_class]; 
 	if (type) return type;
 
-	type = _class.slice(8, -1);
+	type = _class.slice(8, -1).toLowerCase();
 
-	if (type == 'Number') return isFinite(item) ? 'number' : 'null';
-	if (type == 'Object'){
+	if (type.slice(-7) == 'element') return (types[_class] = 'element');
+
+	if (type == 'number') return isFinite(item) ? 'number' : 'null';
+	if (type == 'object'){
 		if (item.nodeName){
 			if (item.nodeType == 1) return 'element';
 			if (item.nodeType == 3) return 'textnode';
@@ -31,9 +33,8 @@ return function(item){
 			if ('item' in item) return 'nodelist';
 		}
 	}
-	if (type.slice(-7) == 'Element') type = 'element';
 
-	return (types[_class] = type.toLowerCase());
+	return type;
 };
 	
 });
