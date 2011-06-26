@@ -2,8 +2,6 @@
 ---
 name: Table
 description: LUA-Style table implementation.
-requires: [Array.indexOf]
-provides: Table
 ...
 */
 	

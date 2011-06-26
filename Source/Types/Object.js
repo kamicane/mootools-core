@@ -6,7 +6,7 @@ description: custom Object prototypes and generics
 */
 
 define('Types/Object', ['Host/Object'], function(Object){
-	
+
 Object.extend({
 
 	from: function(keys, values){

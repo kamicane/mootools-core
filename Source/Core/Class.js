@@ -54,10 +54,8 @@ Class.prototype.parent = function(){
 	return previous.apply(this, arguments);
 };
 
-Class.implement = function(key, fn){
-	if (typeof key != 'string') for (var k in key) this.implement(k, key[k]); else {
-		this.prototype[key] = fn;
-	}
+var classImplement = Class.implement = function(key, fn){
+	if (typeof key != 'string') for (var k in key) classImplement.call(k, key[k]); else this.prototype[key] = fn;
 	return this;
 };
 
