@@ -5,19 +5,10 @@ description: custom Number prototypes and generics.
 ...
 */
 
-define('Types/Number', ['Host/Number'], function(Number){
+define('Utility/Number', ['Host/Number'], function(Number){
 
-Number.extend({
-
-	from: function(item){
-		var number = parseFloat(item);
-		return isFinite(number) ? number : null;
-	},
-
-	random: function(min, max){
-		return Math.floor(Math.random() * (max - min + 1) + min);
-	}
-
+Number.extend('random', function(min, max){
+	return Math.floor(Math.random() * (max - min + 1) + min);
 });
 
 Number.implement({
@@ -33,14 +24,6 @@ Number.implement({
 
 	times: function(fn, bind){
 		for (var i = 0; i < this; i++) fn.call(bind, i, null, this);
-	},
-
-	toInt: function(base){
-		return parseInt(this, base || 10);
-	},
-
-	toFloat: function(){
-		return parseFloat(this);
 	}
 
 });
