@@ -11,21 +11,21 @@ var slice = Array.prototype.slice;
 
 // Host class
 
-return function Host(native_){
+return function Host(guest){
 
 	var prototypes = {}, generics = {}, host = function(){
-		return (this instanceof host) ? this : native_.apply(native_, arguments);
+		return (this instanceof host) ? this : guest.apply(guest, arguments);
 	};
 
 	host.install = function(object){
-		object = object || native_;
+		object = object || guest;
 		for (key in prototypes) if (!object.prototype[key]) object.prototype[key] = prototypes[key];
 		return this;
 	};
 
 	var implement = host.implement = function(key, fn){
 		if (typeof key != 'string') for (var k in key) implement.call(this, k, key[k]); else if (!this.prototype[key] && fn){
-			var proto = this.prototype[key] = prototypes[key] = (native_.prototype[key] || fn);
+			var proto = this.prototype[key] = prototypes[key] = (guest.prototype[key] || fn);
 			extend.call(this, key, function(){
 				var args = slice.call(arguments);
 				return proto.apply(args.shift(0), args);
@@ -36,7 +36,7 @@ return function Host(native_){
 
 	var extend = host.extend = function(key, fn){
 		if (typeof key != 'string') for (var k in key) extend.call(this, k, key[k]);
-		else if (!this[key] && fn) generics[key] = this[key] = (native_[key] || fn);
+		else if (!this[key] && fn) generics[key] = this[key] = (guest[key] || fn);
 		return this;
 	};
 
