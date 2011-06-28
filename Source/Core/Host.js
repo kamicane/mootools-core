@@ -14,7 +14,7 @@ var slice = Array.prototype.slice;
 return function Host(guest){
 
 	var prototypes = {}, generics = {}, host = function(){
-		return (this instanceof host) ? this : guest.apply(guest, arguments);
+		return guest.apply(guest, arguments);
 	};
 
 	host.install = function(object){

@@ -173,7 +173,7 @@ Elements.implement = function(key, fn){
 	}
 };
 
-Elements.prototype = new Array;
+Elements.prototype = Object.create(Array.prototype);
 
 Elements.implement({
 	
