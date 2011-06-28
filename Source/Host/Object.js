@@ -5,7 +5,7 @@ description: ES5 Object methods
 ...
 */
 
-define('Host/Object', ['Core/Host'], function(Host){
+define(['../Core/Host'], function(Host){
 	
 var Object_ = Host(Object), slice = Array.prototype.slice;
 

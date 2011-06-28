@@ -5,7 +5,7 @@ description: ES5 Function methods
 ...
 */
 
-define('Host/Function', ['Core/Host'], function(Host){
+define(['../Core/Host'], function(Host){
 
 var proto = Function.prototype, slice = Array.prototype.slice;
 

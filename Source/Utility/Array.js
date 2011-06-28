@@ -5,7 +5,7 @@ description: Custom Array prototypes and generics.
 ...
 */
 
-define('Utility/Array', ['Utility/typeOf', 'Host/Array'], function(typeOf, Array){
+define(['./typeOf', '../Host/Array'], function(typeOf, Array){
 
 Array.implement({
 

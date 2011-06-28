@@ -5,7 +5,7 @@ description: Standalone CSS3 Selector parser
 ...
 */
 
-define('Slick/Parser', function(){
+define(function(){
 
 var parsed,
 	separatorIndex,

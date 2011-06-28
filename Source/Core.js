@@ -8,14 +8,7 @@
                                            the javascript framework
 */
 
-/*
----
-name: Core
-description: The heart of MooTools
-...
-*/
-
-define('Core', {
+define({
 	version: '1.99dev',
 	build: '%build%'
 });

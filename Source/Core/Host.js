@@ -5,7 +5,7 @@ description: The Host object
 ...
 */
 
-define('Core/Host', function(){
+define(function(){
 
 var slice = Array.prototype.slice;
 

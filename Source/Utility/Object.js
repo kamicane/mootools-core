@@ -5,7 +5,7 @@ description: custom Object prototypes and generics
 ...
 */
 
-define('Utility/Object', ['Host/Object'], function(Object){
+define(['../Host/Object'], function(Object){
 
 Object.extend({
 

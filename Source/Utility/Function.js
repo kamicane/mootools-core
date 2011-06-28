@@ -5,7 +5,7 @@ description: Function prototypes and generics.
 ...
 */
 
-define('Utility/Function', ['Utility/typeOf', 'Host/Function', 'Host/Array'], function(typeOf, Function, Array){
+define(['./typeOf', '../Host/Function', '../Host/Array'], function(typeOf, Function, Array){
 	
 Function.extend('attempt', function(){
 	for (var i = 0, l = arguments.length; i < l; i++){

@@ -5,7 +5,7 @@ description: Class to create and manipulate colors. Includes HSB «-» RGB «-»
 ...
 */
 
-define('Data/Color', ['Utility/typeOf', 'Data/Accessor', 'Host/Array'], function(typeOf, Accessor, Array){
+define(['../Utility/typeOf', './Accessor', '../Host/Array'], function(typeOf, Accessor, Array){
 	
 var limit = function(num, min, max){
 	return Math.min(max, Math.max(min, num));
@@ -36,7 +36,7 @@ var Color = function(color, type){
 
 };
 
-new Accessor('Color').apply(Color);
+Accessor.call(Color, 'Color');
 
 Color.defineColors({
 	maroon: '#800000', red: '#ff0000', orange: '#ffA500', yellow: '#ffff00', olive: '#808000',

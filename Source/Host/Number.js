@@ -5,7 +5,7 @@ description: ES5 Number methods
 ...
 */
 
-define('Host/Number', ['Core/Host'], function(Host){
+define(['../Core/Host'], function(Host){
 
 var proto = Number.prototype;
 return Host(Number).implement({

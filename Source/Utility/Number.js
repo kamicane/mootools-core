@@ -5,7 +5,7 @@ description: custom Number prototypes and generics.
 ...
 */
 
-define('Utility/Number', ['Host/Number'], function(Number){
+define(['../Host/Number'], function(Number){
 
 Number.extend('random', function(min, max){
 	return Math.floor(Math.random() * (max - min + 1) + min);

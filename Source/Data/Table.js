@@ -5,7 +5,7 @@ description: LUA-Style table implementation.
 ...
 */
 	
-define('Data/Table', ['Host/Array'], function(Array){
+define('/Table', ['../Host/Array'], function(Array){
 	
 return function(){
 

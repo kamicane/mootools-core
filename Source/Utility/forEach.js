@@ -5,7 +5,7 @@ description: for each
 ...
 */
 
-define('Utility/forEach', ['Utility/typeOf', 'Host/Array', 'Utility/Object'], function(typeOf, Array, Object){
+define(['./typeOf', '../Host/Array', './Object'], function(typeOf, Array, Object){
 
 return function(self, fn, context){
 	switch(typeOf(self)){

@@ -5,7 +5,7 @@ description: merge things
 ...
 */
 
-define('Utility/merge', ['Utility/typeOf', 'Host/Object'], function(typeOf, Object){
+define(['./typeOf', '../Host/Object'], function(typeOf, Object){
 	
 var merge = function(self, key, value){
 	if (typeof key == 'string'){

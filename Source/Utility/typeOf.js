@@ -5,7 +5,7 @@ description: type of
 ...
 */
 
-define('Utility/typeOf', function(){
+define(function(){
 	
 var toString = Object.prototype.toString,
 	types = {'[object Text]': 'textnode'},

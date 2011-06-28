@@ -5,7 +5,7 @@ description: The basic Timer logic.
 ...
 */
 
-define('Utility/Timer', ['Host/Date', 'Utility/Array'], function(Date, Array){
+define(['../Host/Date', './Array'], function(Date, Array){
 
 var timerCallBacks = {}, timerRunners = {};
 

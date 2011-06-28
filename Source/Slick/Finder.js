@@ -1,11 +1,11 @@
 /*
 ---
-name: Slick.Finder
+name: Finder
 description: The new, superfast css selector engine.
 ...
 */
 
-define('Slick/Finder', ['Slick/Parser'], function(Parser){
+define(['./Parser'], function(Parser){
 	
 var Finder = {}, local = {},
 	featuresCache = {},
