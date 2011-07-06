@@ -7,13 +7,13 @@ provides: Events
 ...
 */
 
-define(['../Utility/uniqueID', '../Core/Class', '../Host/Function', '../Data/Table'], function(uniqueID, Class, Function, Table){
+define(['../Utility/uniqueID', '../Core/Class', '../Utility/Function', '../Data/Table'], function(uniqueID, Class, Function, Table){
 
 var uid = '$' + uniqueID();
 
 return new Class({
 
-	listen: function(type, fn){
+	listen: Function.overloadSetter(function(type, fn){
 		if (!this[uid]) this[uid] = {};
 
 		if (!this[uid][type]) this[uid][type] = new Table;
@@ -25,9 +25,9 @@ return new Class({
 		events.set(fn, bound);
 
 		return this;
-	}, // TODO .overloadSetter(),
+	}),
 
-	ignore: function(type, fn){
+	ignore: Function.overloadSetter(function(type, fn){
 		if (!this[uid]) return this;
 
 		var events = this[uid][type];
@@ -44,7 +44,7 @@ return new Class({
 		}
 
 		return this;
-	}, // TODO .overloadSetter(),
+	}),
 
 	fire: function(type){
 		if (!this[uid]) return this;
