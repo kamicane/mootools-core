@@ -7,11 +7,11 @@ provides: Events
 ...
 */
 
-(function(){
+define(['../Utility/uniqueID', '../Core/Class', '../Host/Function', '../Data/Table'], function(uniqueID, Class, Function, Table){
 
-var uid = '$' + String.uniqueID();
+var uid = '$' + uniqueID();
 
-this.Events = new Class({
+return new Class({
 
 	listen: function(type, fn){
 		if (!this[uid]) this[uid] = {};
@@ -20,23 +20,23 @@ this.Events = new Class({
 		var events = this[uid][type];
 		if (events.get(fn)) return this;
 
-		var bound = fn.bind(this);
-		
+		var bound = Function.bind(fn, this);
+
 		events.set(fn, bound);
 
 		return this;
-	}.overloadSetter(),
+	}, // TODO .overloadSetter(),
 
 	ignore: function(type, fn){
 		if (!this[uid]) return this;
 
 		var events = this[uid][type];
 		if (!events) return this;
-		
+
 		if (type == null){ //ignore all
 			for (var ty in this[uid]) this.ignore(ty);
 		} else if (fn == null){ // ignore every of type
-			events.each(function(fn){
+			events.forEach(function(fn){
 				this.ignore(type, fn);
 			}, this);
 		} else { // ignore one
@@ -44,16 +44,16 @@ this.Events = new Class({
 		}
 
 		return this;
-	}.overloadSetter(),
+	}, // TODO .overloadSetter(),
 
 	fire: function(type){
 		if (!this[uid]) return this;
 		var events = this[uid][type];
 		if (!events) return this;
 
-		var args = Array.slice(arguments, 1);
+		var args = [].slice.call(arguments, 1);
 
-		events.each(function(fn, bound){
+		events.forEach(function(fn, bound){
 			fn.apply(this, args);
 		}, this);
 
@@ -62,4 +62,4 @@ this.Events = new Class({
 
 });
 
-})();
+});
