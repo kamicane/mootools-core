@@ -5,7 +5,7 @@ description: Chain
 ...
 */
 
-define(['../Core/Class'], function(Class, Array){
+define(['../Core/Class'], function(Class){
 
 return new Class({
 
