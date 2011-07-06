@@ -64,6 +64,12 @@ Function.implement('attempt', function(bind){
 	return null;
 });
 
+Function.extend('from', function(item){
+	return (typeOf(item) == 'function') ? item : function(){
+		return item;
+	};
+});
+
 return Function;
 	
 });
