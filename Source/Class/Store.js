@@ -7,19 +7,19 @@ provides: Store
 ...
 */
 
-(function(){
-	
-var uid = '$' + String.uniqueID();
+define(['../Utility/uniqueID', '../Utility/Function'], function(uniqueID, Function){
+
+var uid = '$' + uniqueID();
 
 var storageOf = function(object){
 	return object[uid] || (object[uid] = {});
 };
 
-this.Store = new Class({
+return new Class({
 
-	store: function(key, value){
+	store: Function.overloadSetter(function(key, value){
 		storageOf(this)[key] = value;
-	}.overloadSetter(),
+	}),
 
 	retrieve: function(key, defaultValue){
 		var storage = storageOf(this);
@@ -28,13 +28,13 @@ this.Store = new Class({
 		return storage[key];
 	},
 
-	dump: function(key){
+	dump: Function.overloadGetter(function(key){
 		var storage = storageOf(this);
 		var value = storage[key];
 		delete storage[key];
 		return value;
-	}.overloadGetter()
+	})
 
 });
 
-})();
+});
