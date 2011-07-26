@@ -2,19 +2,17 @@
 ---
 name: Options
 description: Options
-requires: [Type, Class, Object]
-provides: Options
 ...
 */
 
-(function(){
+define(['../Utility/typeOf', '../Utility/merge', '../Utility/Function', '../Core/Class'], function(typeOf, merge, Function, Class){
 
 var classSetOption = function(key, value){
 	if (!this.options) this.options = {};
 	if (this.listen && (/^on[A-Z]/).test(key) && typeOf(value) == 'function') this.listen(key.replace(/^on([A-Z])/, function(full, first){
 		return first.toLowerCase();
 	}), value);
-	else Object.merge(this.options, key, value);
+	else merge(this.options, key, value);
 	return this;
 };
 
@@ -25,11 +23,11 @@ var classGetOption = function(key){
 	return (value != null) ? value : null;
 };
 
-this.Options = new Class({
+return new Class({
 	setOption: classSetOption,
-	setOptions: classSetOption.overloadSetter(true),
+	setOptions: Function.overloadSetter(classSetOption, true),
 	getOption: classGetOption,
-	getOptions: classGetOption.overloadGetter(true)
+	getOptions: Function.overloadGetter(classGetOption, true)
 });
 
-})();
+});
