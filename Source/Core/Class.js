@@ -7,36 +7,22 @@ description: Contains the Class Function for easily creating, extending, and imp
 
 define(['../Utility/typeOf', '../Host/Object', '../Data/Accessor', '../Utility/merge'], function(typeOf, Object, Accessor){
 
-var prototyping = false;
-
 var Class = function(params){
-	
-	if (prototyping){
-		prototyping = false;
-		return this;
-	}
+
+	if (!params) params = {};
 	
 	var newClass = function(){
-		reset(this);
-		if (prototyping){
-			prototyping = false;
-			return this;
-		}
-		this.caller_ = null;
-		var value = (this.initialize) ? this.initialize.apply(this, arguments) : this;
-		this.caller_ = this.caller = null;
-		return value;
+		return (this.initialize) ? this.initialize.apply(this, arguments) : this;
 	};
 	
 	//Extends "embedded" mutator
-	
-	var ParentClass = (params && params.Extends) ? params.Extends : Class;
-	prototyping = true;
-	var instance = new ParentClass;
-	if (!instance instanceof Class) return new Error('"Extends" cannot be called with a function not inheriting from "Class"');
-	newClass.parent = ParentClass;
+	var parent = (params.Extends) ? params.Extends : Class;
+	delete params.Extends;
+	if (!parent.prototype instanceof Class) return new Error('"Extends" cannot be called with a function not inheriting from "Class"');
+	var instance = Object.create(parent.prototype);
+	newClass.parent = parent;
 	newClass.prototype = instance;
-	if (params) delete params.Extends;
+	newClass.prototype.constructor = newClass;
 
 	newClass.implement = implement;
 	newClass.implement(params);
@@ -57,23 +43,14 @@ var classImplement = Class.implement = function(key, fn){
 	return this;
 };
 
-var reset = function(object){
-	for (var key in object){
-		var value = object[key];
-		if (typeOf(value) == 'object') object[key] = reset(Object.create(value));
-	}
-	return object;
-};
-
 var wrap = function(self, key, method){
 	if (method.origin_) method = method.origin_;
 	
 	var wrapped = function(){
 		if (method.protected_ && this.caller_ == null) throw new Error('The method "' + key + '" cannot be called.');
-		var caller = this.caller, current = this.caller_;
-		this.caller = current; this.caller_ = wrapped;
+		var old = this.caller_; this.caller_ = wrapped;
 		var result = method.apply(this, arguments);
-		this.caller_ = current; this.caller = caller;
+		if (old != null) this.caller_ = old; else delete this._caller;
 		return result;
 	};
 	
@@ -88,19 +65,18 @@ Accessor.call(Class, 'Mutator');
 
 var implement_ = function(self, key, value, nowrap){
 	var mutator = Class.lookupMutator(key);
-	if (mutator) value = mutator.call(self, value);
-
-	if (typeOf(value) == 'function'){
-		self.prototype[key] = (nowrap) ? value : wrap(self, key, value);
-	} else Object.merge(self.prototype, key, value);
+	if (mutator){
+		value = mutator.call(self, value);
+		if (value == null) return;
+	}
+	self.prototype[key] = (nowrap || typeOf(value) != 'function') ? value : wrap(self, key, value);
 };
 
 var implement = function(item){
 	switch (typeOf(item)){
 		case 'string': implement_(this, item, arguments[1]); break;
 		case 'function':
-			prototyping = true;
-			var instance = new item;
+			var instance = Object.create(item.prototype);
 			for (var k in instance) implement_(this, k, instance[k], true);
 		break;
 		case 'object': for (var o in item) implement_(this, o, item[o]); break;
@@ -113,9 +89,7 @@ Class.defineMutator('Implements', function(items){
 	for (var i = 0; i < items.length; i++) implement.call(this, items[i]);
 }).defineMutator(/^protected\s(\w+)$/, function(fn, name){
 	fn.protected_ = true;
-	implement_(this, name, fn);
-}).defineMutator(/^linked\s(\w+)$/, function(value, name){
-	this.prototype[name] = value;
+	this.prototype[name] = wrap(this, name, fn);
 });
 
 return Class;
