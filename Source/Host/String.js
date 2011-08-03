@@ -12,6 +12,10 @@ var names = 'charAt,charCodeAt,concat,indexOf,lastIndexOf,match,quote,replace,se
 
 while (i--) String_.implement(names[i], proto[names[i]]);
 
+String_.implement('trim', function(){
+	return (this + '').replace(/^\s+|\s+$/g, '');
+});
+
 return String_;
 
 });
