@@ -9,7 +9,7 @@ provides: Events
 
 define(['../Utility/uniqueID', '../Core/Class', '../Utility/Function', '../Data/Table'], function(uniqueID, Class, Function, Table){
 
-var uid = '$' + uniqueID();
+var uid = '_' + uniqueID();
 
 return new Class({
 
