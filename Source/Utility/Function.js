@@ -7,6 +7,7 @@ description: Function prototypes and generics.
 
 define(['./typeOf', '../Host/Function', '../Host/Array'], function(typeOf, Function, Array){
 
+var enumerables = true;
 for (var i in {toString: 1}) enumerables = null;
 if (enumerables) enumerables = ['hasOwnProperty', 'valueOf', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toString', 'constructor'];
 
