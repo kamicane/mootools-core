@@ -6,8 +6,8 @@ description: DOM
 */
 
 define([
-	'../Core/Class', '../Utility/typeOf', '../Utility/Object', '../Utility/Array', '../Utility/String', '../Slick/Finder', '../Slick/Parser', '../Data/Accessor'
-], function(Class, typeOf, Object, Array, String, Finder, Parser, Accessor){
+	'../Core/Class', '../Utility/Object', '../Utility/Array', '../Utility/String', '../Slick/Finder', '../Slick/Parser', '../Data/Accessor'
+], function(Class, Object, Array, String, Finder, Parser, Accessor){
 
 // node
 

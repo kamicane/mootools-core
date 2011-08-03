@@ -5,7 +5,7 @@ description: Function prototypes and generics.
 ...
 */
 
-define(['./typeOf', '../Host/Function', '../Host/Array'], function(typeOf, Function, Array){
+define(['../Host/Function', '../Host/Array'], function(Function, Array){
 
 var enumerables = true;
 for (var i in {toString: 1}) enumerables = null;
@@ -59,14 +59,13 @@ Function.extend('attempt', function(){
 Function.implement('attempt', function(bind){
 	var args = Array.slice(arguments);
 	try {
-		return this.apply(args.shift(0), args);
+		return this.apply(args.shift(), args);
 	} catch (e){}
-
 	return null;
 });
 
 Function.extend('from', function(item){
-	return (typeOf(item) == 'function') ? item : function(){
+	return (typeof item == 'function') ? item : function(){
 		return item;
 	};
 });
