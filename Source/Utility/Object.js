@@ -30,7 +30,7 @@ Object.implement({
 	},
 
 	append: function(){
-		for (var i = 1, l = arguments.length; i < l; i++){
+		for (var i = 0, l = arguments.length; i < l; i++){
 			var extended = arguments[i] || {};
 			for (var key in extended) this[key] = extended[key];
 		}
