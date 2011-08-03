@@ -5,7 +5,7 @@ description: Custom Array prototypes and generics.
 ...
 */
 
-define(['./typeOf', '../Host/Array'], function(typeOf, Array){
+define(['../Host/Array'], function(Array){
 
 Array.implement({
 
@@ -34,7 +34,7 @@ Array.implement({
 
 	random: function(){
 		var length = this.length;
-		return (length) ? this[Number.random(0, length - 1)] : null;
+		return (length) ? this[Math.floor(Math.random() * length)] : null;
 	},
 
 	include: function(item){
