@@ -14,7 +14,7 @@ var Class = function(params){
 	var newClass = function(){
 		return (this.initialize) ? this.initialize.apply(this, arguments) : this;
 	};
-	
+
 	//Extends "embedded" mutator
 	var parent = (params.Extends) ? params.Extends : Class;
 	delete params.Extends;
@@ -23,6 +23,9 @@ var Class = function(params){
 	newClass.parent = parent;
 	newClass.prototype = instance;
 	newClass.prototype.constructor = newClass;
+	
+	newClass._accessor = parent._accessor();
+	for (var p in newClass._accessor) newClass[p] = newClass._accessor[p];
 
 	newClass.implement = implement;
 	newClass.implement(params);
@@ -61,7 +64,10 @@ var wrap = function(self, key, method){
 	return wrapped;
 };
 
-Accessor.call(Class, 'Mutator');
+// Accessor.call(Class, 'Mutator');
+
+var Class._accessor = Accessor('Mutator');
+for (var a in Class._accessor) Class[a] = Class._accessor[a];
 
 var implement_ = function(self, key, value, nowrap){
 	var mutator = Class.lookupMutator(key);
