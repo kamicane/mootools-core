@@ -5,9 +5,9 @@ description: Custom Array prototypes and generics.
 ...
 */
 
-define(['./typeOf', '../Host/Array'], function(typeOf, Array){
-
-Array.implement({
+define(['../Core/Host', '../Host/Array'], function(Host, Array){
+	
+return Host(Array).implement({
 
 	invoke: function(name){
 		var args = Array.slice(arguments, 1), results = [];
@@ -56,7 +56,5 @@ Array.implement({
 	}
 
 });
-
-return Array;
 	
 });
