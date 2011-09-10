@@ -7,12 +7,13 @@ description: ES5 Function methods
 
 define(['../Core/Host'], function(Host){
 
-var proto = Function.prototype, slice = Array.prototype.slice;
+var slice = Array.prototype.slice, Function_ = Host(Function);
 
-return Host(Function).implement({
-	
-	apply: proto.apply,
-	call: proto.call,
+Function_.bind = function(self, context){
+	return Function_.prototype.bind.call(self, context);
+};
+
+return Function_.implement({
 
 	bind: function(bind){
 		var self = this, args = (arguments.length > 1) ? slice.call(arguments, 1) : null;
