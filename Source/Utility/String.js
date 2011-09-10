@@ -5,9 +5,9 @@ description: custom String prototypes and generics.
 ...
 */
 
-define(['../Host/String'], function(String){
-
-String.implement({
+define(['../Core/Host', '../Host/String'], function(Host, String){
+	
+return Host(String).implement({
 
 	contains: function(string, separator){
 		return ((separator) ? (separator + this + separator).indexOf(separator + string + separator) : this.indexOf(string)) > -1;
@@ -40,7 +40,5 @@ String.implement({
 	}
 
 });
-
-return String;
 
 });

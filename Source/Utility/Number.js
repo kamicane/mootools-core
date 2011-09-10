@@ -5,7 +5,9 @@ description: custom Number prototypes and generics.
 ...
 */
 
-define(['../Host/Number'], function(Number){
+define(['../Core/Host', '../Host/Number'], function(Host, Number){
+	
+Number = Host(Number);
 
 Number.extend('random', function(min, max){
 	return Math.floor(Math.random() * (max - min + 1) + min);

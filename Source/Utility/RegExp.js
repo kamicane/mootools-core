@@ -5,12 +5,10 @@ description: Custom RegExp prototypes and generics.
 ...
 */
 
-define(['../Host/RegExp'], function(RegExp){
+define(['../Core/Host', '../Host/RegExp'], function(Host, RegExp){
 
-RegExp.implement('escape', function(){
+return Host(RegExp).implement('escape', function(){
 	return this.toString().replace(/([-.*+?^${}()|[\]\/\\])/g, '\\$1');
 });
-
-return RegExp;
 
 });

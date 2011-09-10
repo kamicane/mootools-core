@@ -5,10 +5,12 @@ description: Function prototypes and generics.
 ...
 */
 
-define(['./typeOf', '../Host/Function', '../Host/Array'], function(typeOf, Function, Array){
+define(['./typeOf', '../Core/Host', '../Host/Function', '../Host/Array'], function(typeOf, Host, Function, Array){
 
 for (var i in {toString: 1}) enumerables = null;
 if (enumerables) enumerables = ['hasOwnProperty', 'valueOf', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toString', 'constructor'];
+
+Function = Host(Function);
 
 Function.implement('overloadSetter', function(forceObjectArgument){
 	var self = this;
