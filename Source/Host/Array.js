@@ -10,11 +10,15 @@ define(['../Core/Host'], function(Host){
 //methods that we want available only on environments that already supports them on the native object
 
 var names = 'pop,push,reverse,shift,sort,splice,unshift,concat,join,slice,lastIndexOf,reduce,reduceRight'.split(','),
-	i = names.length, proto = Array.prototype, Array_ = Host(Array);
+	i = names.length, proto = Array.prototype, toString = Object.prototype.toString, Array_ = Host(Array);
 
 while (i--) Array_.implement(names[i], proto[names[i]]);
 
-return Array_.implement({
+Array_.extend('isArray', function(object){
+	return toString.call(object) == '[object Array]';
+});
+
+Array_.implement({
 
 	//methods that we want available in every environment
 
@@ -62,5 +66,7 @@ return Array_.implement({
 	}
 
 });
+
+return Array_;
 	
 });
