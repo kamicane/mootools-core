@@ -24,7 +24,7 @@ var Class = function(params){
 	newClass.prototype = instance;
 	newClass.prototype.constructor = newClass;
 	
-	newClass.implement = Class.implement;
+	newClass.implement = implement;
 	newClass.addAccessor = Class.addAccessor;
 	
 	var accessors = parent.accessors;
@@ -51,11 +51,6 @@ Class.addAccessor = function(accessor){
 	return this;
 };
 
-var classImplement = Class.implement = function(key, fn){
-	if (typeof key != 'string') for (var k in key) classImplement.call(k, key[k]); else this.prototype[key] = fn;
-	return this;
-};
-
 var wrap = function(self, key, method){
 	if (method.origin_) method = method.origin_;
 	
@@ -63,7 +58,7 @@ var wrap = function(self, key, method){
 		if (method.protected_ && this.caller_ == null) throw new Error('The method "' + key + '" cannot be called.');
 		var old = this.caller_; this.caller_ = wrapped;
 		var result = method.apply(this, arguments);
-		if (old != null) this.caller_ = old; else delete this._caller;
+		if (old != null) this.caller_ = old; else delete this.caller_;
 		return result;
 	};
 	
