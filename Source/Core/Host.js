@@ -45,8 +45,8 @@ Host.prototype.install = function(){
 return function(object){
 	
 	if (object instanceof Host){
-		var host = Object.create(object);
-		host.prototype = Object.create(object.prototype);
+		var host = create(object);
+		host.prototype = create(object.prototype);
 		return host;
 	}
 
