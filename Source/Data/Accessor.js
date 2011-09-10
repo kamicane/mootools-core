@@ -5,7 +5,7 @@ description: Access things
 ...
 */
 
-define(['../Utility/typeOf', '../Host/Array'], function(typeOf, Object, Array){
+define(['../Utility/typeOf', '../Host/Object', '../Host/Array'], function(typeOf, Object, Array){
 
 var Accessor = function(singular, plural, accessor, matcher){
 
