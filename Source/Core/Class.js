@@ -24,10 +24,11 @@ var Class = function(params){
 	newClass.prototype = instance;
 	newClass.prototype.constructor = newClass;
 	
-	newClass._accessor = parent._accessor();
-	for (var p in newClass._accessor) newClass[p] = newClass._accessor[p];
+	for (var p in Class) newClass[p] = Class[p];
+	
+	var accessors = parent.accessors;
+	for (var i = 0; i < accessors.length; i++) newClass.addAccessor(accessors[i]);
 
-	newClass.implement = implement;
 	newClass.implement(params);
 	
 	return newClass;
@@ -39,6 +40,14 @@ Class.prototype.parent = function(){
 	var previous = (parent) ? parent.prototype[name] : null;
 	if (!previous) throw new Error('The method "' + name + '" has no parent.');
 	return previous.apply(this, arguments);
+};
+
+Class.addAccessor = function(accessor){
+	if (!this.accessors) this.accessors = [];
+	accessor = (typeof accessor != 'string') ? accessor() : Accessor.apply(null, arguments);
+	this.accessors.push(accessor);
+	for (var p in accessor) this[p] = accessor[p];
+	return this;
 };
 
 var classImplement = Class.implement = function(key, fn){
@@ -64,11 +73,6 @@ var wrap = function(self, key, method){
 	return wrapped;
 };
 
-// Accessor.call(Class, 'Mutator');
-
-var Class._accessor = Accessor('Mutator');
-for (var a in Class._accessor) Class[a] = Class._accessor[a];
-
 var implement_ = function(self, key, value, nowrap){
 	var mutator = Class.lookupMutator(key);
 	if (mutator){
@@ -89,6 +93,8 @@ var implement = function(item){
 	}
 	return this;
 };
+
+Class.addAccessor('Mutator');
 
 Class.defineMutator('Implements', function(items){
 	if (typeOf(items) != 'array') items = [items];

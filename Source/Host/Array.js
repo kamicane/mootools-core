@@ -67,4 +67,6 @@ Array_.implement({
 
 });
 
+return Array_;
+
 });
