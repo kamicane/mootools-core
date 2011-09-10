@@ -9,8 +9,8 @@ define(['../Core/Host'], function(Host){
 
 var slice = Array.prototype.slice, Function_ = Host(Function);
 
-Function_.bind = function(self, context){
-	return Function_.prototype.bind.call(self, context);
+Function_.bind = function(self){
+	return Function_.prototype.bind.apply(self, slice.call(arguments, 1));
 };
 
 return Function_.implement({
