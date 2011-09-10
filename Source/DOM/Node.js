@@ -6,10 +6,12 @@ description: DOM
 */
 
 define([
-	'../Core/Class', '../Utility/typeOf', '../Utility/Object', '../Utility/Array', '../Utility/String', '../Slick/Finder', '../Slick/Parser', '../Data/Accessor'
-], function(Class, typeOf, Object, Array, String, Finder, Parser, Accessor){
+	'../Core/Class', '../Utility/typeOf', '../Utility/Object', '../Utility/Array', '../Utility/String', 'Slick/Finder', '../Data/Accessor'
+], function(Class, typeOf, Object, Array, String, Slick, Accessor){
 
 // node
+
+var html = document.documentElement;
 
 var Node = Class({
 
@@ -18,25 +20,15 @@ var Node = Class({
 	},
 	
 	find: function(expression){
-		return select(Finder.find(this.node, expression));
+		return select(Slick.find(this.node, expression));
 	},
 	
 	search: function(expression){
-		var elements = new Elements, nodes = Finder.search(this.node, expression);
+		var elements = new Elements, nodes = Slick.search(this.node, expression);
 		for (var i = 0; i < nodes.length; i++) elements[elements.length++] = select(nodes[i]);
 		return elements;
-	}
-
-});
-
-Node.prototype.valueOf = function(){
-	return this.node;
-};
-
-var html = document.documentElement;
-
-Node.implement({
-
+	},
+	
 	addEventListener: ((html.addEventListener) ? function(type, fn){
 		this.node.addEventListener(type, fn, false);
 		return this;
@@ -55,25 +47,27 @@ Node.implement({
 
 });
 
+Node.prototype.valueOf = function(){
+	return this.node;
+};
+
 var wrappers = {}, matchers = [];
 
 Class.defineMutator('Matches', function(match){
-	matchers.push({_match: match, _class: this});
+	matchers.push({match: match, construct: this, type: typeOf(match)});
 });
 
 // select
 
 var select = Node.select = function(node){
 	if (node != null){
-		if (typeof node == 'string') return hostDocument.find(node);
+		if (typeof node == 'string') return select(Slick.find(document, node));
 		if (node instanceof Node) return node;
-		if (node === window) return hostWindow;
-		if (node === document) return hostDocument;
-		var uid = node.uniqueNumber || Finder.uidOf(node), wrapper = wrappers[uid];
+		var uid = node.uniqueNumber || Slick.uidOf(node), wrapper = wrappers[uid];
 		if (wrapper) return wrapper;
 		for (var l = matchers.length; l--; l){
-			var current = matchers[l];
-			if (Finder.match(node, current._match)) return (wrappers[uid] = new current._class(node));
+			var current = matchers[l], match = current.match, type = current.type, construct = current.construct;
+			if ((type == 'string' && Slick.match(node, match)) || (type == 'function' && match(node))) return (wrappers[uid] = new construct(node));
 		}
 	}
 	return null;
@@ -85,7 +79,7 @@ var collect = Node.collect = function(){
 	var list = new Elements;
 	for (var i = 0, l = arguments.length; i < l; i++){
 		var argument = arguments[i];
-		if (typeof argument == 'string') Finder.search(document, argument, list);
+		if (typeof argument == 'string') Slick.search(document, argument, list);
 		else list.push(argument);
 	}
 	return list;
@@ -105,17 +99,13 @@ var Document = Node.Document = Class({
 		return this.node.createTextNode(text);
 	},
 	
-	build: function(){
-		
-	}
+	build: function(){}
 
 });
 
 Document.prototype.toString = function(){
 	return '<document>';
 };
-
-var hostDocument = new Document(document);
 
 // window
 
@@ -124,8 +114,6 @@ var Window = Node.Window = Class({Extends: Node});
 Window.prototype.toString = function(){
 	return '<window>';
 };
-
-var hostWindow = new Window(window);
 
 // element
 
@@ -160,6 +148,14 @@ Element.implement = function(key, fn){
 	}
 };
 
+Element.prototype.toString = function(){
+	var tag = this.get('tag'), id = this.get('id'), className = this.get('class');
+	var str = '<' + tag;
+	if (id) str += '#' + id;
+	if (className) str += '.' + className.replace(/\s+/, '.');
+	return str + '>';
+};
+
 // elements
 
 var Elements = Node.Elements = function(){
@@ -168,9 +164,7 @@ var Elements = Node.Elements = function(){
 };
 
 Elements.implement = function(key, fn){
-	if (typeof key != 'string') for (var k in key) this.implement(k, key[k]); else {
-		this.prototype[key] = fn;
-	}
+	if (typeof key != 'string') for (var k in key) this.implement(k, key[k]); else this.prototype[key] = fn;
 };
 
 Elements.prototype = Object.create(Array.prototype);
@@ -181,11 +175,11 @@ Elements.implement({
 	
 	push: function(){
 		for (var i = 0, l = arguments.length; i < l; i++){
-			var item = arguments[i], node = select(arguments[i]);
-			if (node){
-				item = node.valueOf();
-				var uid = item.uniqueNumber || Finder.uidOf(item);
-				if (!this.uids[uid]) this[this.length++] = node;
+			var node = arguments[i], item = select(arguments[i]);
+			if (item && item instanceof Element){
+				node = item.node;
+				var uid = node.uniqueNumber || Slick.uidOf(node);
+				if (!this.uids[uid]) this[this.length++] = item;
 			}
 		}
 		return this.length;
@@ -230,7 +224,7 @@ Element.implement({
 
 var classRegExps = {};
 var classRegExpOf = function(string){
-	return classRegExps[string] || (classRegExps[string] = new RegExp('(^|\\s)' + Parser.escapeRegExp(string) + '(?:\\s|$)'));
+	return classRegExps[string] || (classRegExps[string] = new RegExp('(^|\\s)' + Slick.escapeRegExp(string) + '(?:\\s|$)'));
 };
 
 Element.implement({
