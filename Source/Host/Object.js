@@ -6,7 +6,7 @@ description: ES5 Object methods
 */
 
 define(['../Core/Host'], function(Host){
-	
+
 var Object_ = Host(Object), slice = Array.prototype.slice;
 
 var prototypize = function(generic){
@@ -21,13 +21,13 @@ Object_.implement({
 
 	create: function(){
 		var F = function(){};
-		F.prototype = this;
+		F.prototype = Object(this);
 		return new F;
 	},
 
 	keys: function(){
 		var keys = [];
-		for (var key in self){
+		for (var key in this){
 			if (this.hasOwnProperty(key)) keys.push(key);
 		}
 		return keys;

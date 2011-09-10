@@ -9,7 +9,7 @@ provides: Store
 
 define(['../Utility/uniqueID', '../Utility/Function'], function(uniqueID, Function){
 
-var uid = '$' + uniqueID();
+var uid = '_' + uniqueID();
 
 var storageOf = function(object){
 	return object[uid] || (object[uid] = {});

@@ -34,7 +34,7 @@ return Host(Array).implement({
 
 	random: function(){
 		var length = this.length;
-		return (length) ? this[Number.random(0, length - 1)] : null;
+		return (length) ? this[Math.floor(Math.random() * length)] : null;
 	},
 
 	include: function(item){
