@@ -51,8 +51,8 @@ return function(singular, plural, _accessor, _matcher){
 		return result;
 	};
 	
-	var eachSingular = self[each + singular] = function(fn, bind){
-		Object.forEach(accessor, fn, bind);
+	var eachSingular = self[each + singular] = function(fn, context){
+		for (var key in accessor) fn.call(context, this[key], key, this);
 	};
 	
 	return self;
