@@ -6,40 +6,43 @@ description: Access things
 */
 
 define(['../Utility/typeOf', '../Utility/Object', '../Host/Array'], function(typeOf, Object, Array){
+	
 
-return function(singular, plural){
+return function(singular, plural, _accessor, _matcher){
 
-	var accessor = {}, matchers = [];
+	var singular = singular || '', plural = plural || singular + 's', accessor = _accessor || {}, matcher = _matcher || {},
+	
+	define = 'define', lookup = 'lookup', match = 'match', each = 'each',
+	
+	self = function(){
+		return new Accessor(singular, plural, Object.create(accessor), Object.create(matcher));
+	};
 
-	if (!plural) plural = singular + 's';
-
-	var define = 'define', lookup = 'lookup', match = 'match', each = 'each';
-
-	var defineSingular = this[define + singular] = function(key, value){
-		if (typeOf(key) == 'regexp') matchers.push({'regexp': key, 'value': value, 'type': typeOf(value)});
+	var defineSingular = self[define + singular] = function(key, value){
+		if (typeOf(key) == 'regexp') matcher[String(key)] = {'regexp': key, 'value': value, 'type': typeOf(value)};
 		else accessor[key] = value;
 		return this;
 	};
-
-	var definePlural = this[define + plural] = function(object){
+	
+	var definePlural = self[define + plural] = function(object){
 		for (var key in object) accessor[key] = object[key];
 		return this;
 	};
-
-	var lookupSingular = this[lookup + singular] = function(key){
-		if (accessor.hasOwnProperty(key)) return accessor[key];
-		for (var l = matchers.length; l--; l){
-			var matcher = matchers[l], matched = key.match(matcher.regexp);
+	
+	var lookupSingular = self[lookup + singular] = function(key){
+		if (accessor[key]) return accessor[key];
+		for (var m in matcher){
+			var current = matcher[m], matched = key.match(current.regexp);
 			if (matched && (matched = matched.slice(1))){
-				if (matcher.type == 'function') return function(){
-					return matcher.value.apply(this, Array.slice(arguments).concat(matched));
-				}; else return matcher.value;
+				if (current.type == 'function') return function(){
+					return current.value.apply(this, Array.slice(arguments).concat(matched));
+				}; else return current.value;
 			}
 		}
 		return null;
 	};
-
-	var lookupPlural = this[lookup + plural] = function(){
+ 
+	var lookupPlural = self[lookup + plural] = function(){
 		var results = {};
 		for (var i = 0; i < arguments.length; i++){
 			var argument = arguments[i];
@@ -47,11 +50,12 @@ return function(singular, plural){
 		}
 		return result;
 	};
-
-	var eachSingular = this[each + singular] = function(fn, bind){
+	
+	var eachSingular = self[each + singular] = function(fn, bind){
 		Object.forEach(accessor, fn, bind);
 	};
-
+	
+	return self;
 };
 
 });
