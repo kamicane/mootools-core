@@ -1,7 +1,7 @@
 {
-	"name": "core",
+	"name": "Core",
 	"homepage": "http://mootools.net",
-	"version": "1.99dev",
+	"version": "1.99.99",
 	"description": "MooTools, the JavaScript Framework",
 	"keywords": ["framework"],
 	"maintainers": [{
@@ -21,12 +21,12 @@
 		"type": "git",
 		"url": "git://github.com/mootools/mootools-core.git"
 	}],
-	"dependencies": {"slick": "1.0.5"},
+	"dependencies": {"Slick": "1.0.5"},
 	"implements": ["CommonJS/Packages/1.0", "CommonJS/Modules/AsynchronousDefinition"],
 	"scripts": {
 		"build": "build"
 	},
 	"directories": {
-		"src": "Source"
+		"lib": "Source"
 	}
 }
