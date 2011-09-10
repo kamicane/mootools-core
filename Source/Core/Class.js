@@ -24,7 +24,8 @@ var Class = function(params){
 	newClass.prototype = instance;
 	newClass.prototype.constructor = newClass;
 	
-	for (var p in Class) newClass[p] = Class[p];
+	newClass.implement = Class.implement;
+	newClass.addAccessor = Class.addAccessor;
 	
 	var accessors = parent.accessors;
 	for (var i = 0; i < accessors.length; i++) newClass.addAccessor(accessors[i]);
